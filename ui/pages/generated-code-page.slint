@@ -1,0 +1,33 @@
+// This page points learners toward Slint's generated-code flow.
+// The content is intentionally declarative so it contrasts with build.rs and `include_modules!()`.
+
+export component GeneratedCodePage inherits Rectangle {
+    in property <string> summary;
+
+    background: #f5f3ff;
+    border-radius: 12px;
+
+    VerticalLayout {
+        padding: 20px;
+        spacing: 12px;
+
+        Text {
+            text: "Generated code integration";
+            font-size: 24px;
+            font-weight: 700;
+            color: #4c1d95;
+        }
+
+        Text {
+            text: summary;
+            wrap: word-wrap;
+            color: #5b21b6;
+        }
+
+        Text {
+            text: "Look next at build.rs, then compare the exported component names with the Rust API.";
+            wrap: word-wrap;
+            color: #6d28d9;
+        }
+    }
+}

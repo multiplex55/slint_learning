@@ -1,0 +1,98 @@
+// The root window imports smaller page files so learners can grow the project one demo at a time.
+// Notice the explicit properties and callback: they form a simple contract between Rust and Slint.
+
+import { Button, VerticalBox, HorizontalBox } from "std-widgets.slint";
+import { WelcomePage } from "pages/welcome-page.slint";
+import { SharedStatePage } from "pages/shared-state-page.slint";
+import { GeneratedCodePage } from "pages/generated-code-page.slint";
+
+export component AppWindow inherits Window {
+    width: 960px;
+    height: 640px;
+    title: "Slint Learning Workspace";
+    background: #e5e7eb;
+
+    in-out property <int> current-page: 0;
+    in property <string> page-title: "Welcome overview";
+    in property <string> welcome-message: "";
+    in property <string> shared-state-summary: "";
+    in property <string> generated-code-summary: "";
+    in property <int> completed-topic-count: 0;
+    callback request-page(int);
+
+    HorizontalBox {
+        spacing: 16px;
+        padding: 16px;
+
+        Rectangle {
+            min-width: 220px;
+            background: white;
+            border-radius: 12px;
+
+            VerticalBox {
+                padding: 16px;
+                spacing: 12px;
+
+                Text {
+                    text: "Learning pages";
+                    font-size: 22px;
+                    font-weight: 700;
+                    color: #111827;
+                }
+
+                Text {
+                    text: "Use the left navigation to inspect one concept at a time.";
+                    wrap: word-wrap;
+                    color: #4b5563;
+                }
+
+                Button {
+                    text: "Welcome overview";
+                    clicked => { root.request-page(0); }
+                }
+
+                Button {
+                    text: "Shared state patterns";
+                    clicked => { root.request-page(1); }
+                }
+
+                Button {
+                    text: "Generated code patterns";
+                    clicked => { root.request-page(2); }
+                }
+            }
+        }
+
+        Rectangle {
+            background: white;
+            border-radius: 12px;
+            border-width: 1px;
+            border-color: #d1d5db;
+
+            VerticalBox {
+                padding: 16px;
+                spacing: 12px;
+
+                Text {
+                    text: page-title;
+                    font-size: 28px;
+                    font-weight: 700;
+                    color: #111827;
+                }
+
+                if current-page == 0 : WelcomePage {
+                    message: welcome-message;
+                }
+
+                if current-page == 1 : SharedStatePage {
+                    summary: shared-state-summary;
+                    completed-topic-count: completed-topic-count;
+                }
+
+                if current-page == 2 : GeneratedCodePage {
+                    summary: generated-code-summary;
+                }
+            }
+        }
+    }
+}

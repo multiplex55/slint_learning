@@ -1,0 +1,33 @@
+// This page exists to make shared state visible without introducing complex widgets yet.
+// A learner can later replace these labels with models, list views, or editable form data.
+
+export component SharedStatePage inherits Rectangle {
+    in property <string> summary;
+    in property <int> completed-topic-count;
+
+    background: #fffaf0;
+    border-radius: 12px;
+
+    VerticalLayout {
+        padding: 20px;
+        spacing: 12px;
+
+        Text {
+            text: "Shared application state";
+            font-size: 24px;
+            font-weight: 700;
+            color: #7c2d12;
+        }
+
+        Text {
+            text: summary;
+            wrap: word-wrap;
+            color: #9a3412;
+        }
+
+        Text {
+            text: "Completed topics tracked in Rust: " + completed-topic-count;
+            color: #c2410c;
+        }
+    }
+}
