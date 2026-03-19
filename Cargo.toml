@@ -1,0 +1,13 @@
+[package]
+name = "slint_learning"
+version = "0.1.0"
+edition = "2021"
+description = "A Slint learning playground with explicit Rust and .slint examples."
+license = "MIT"
+build = "build.rs"
+
+[dependencies]
+slint = { version = "1.15", features = ["backend-winit", "renderer-femtovg", "std"] }
+
+[build-dependencies]
+slint-build = "1.15"

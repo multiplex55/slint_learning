@@ -1,0 +1,33 @@
+// This first page is intentionally simple.
+// Learners should notice how Rust passes explicit strings into a reusable Slint component.
+
+export component WelcomePage inherits Rectangle {
+    in property <string> message;
+
+    background: #f6f8fb;
+    border-radius: 12px;
+
+    VerticalLayout {
+        padding: 20px;
+        spacing: 12px;
+
+        Text {
+            text: "Start here";
+            font-size: 24px;
+            font-weight: 700;
+            color: #243b53;
+        }
+
+        Text {
+            text: message;
+            wrap: word-wrap;
+            color: #334e68;
+        }
+
+        Text {
+            text: "Notice the split: navigation/state live in Rust, while page layout stays in ui/pages/.";
+            wrap: word-wrap;
+            color: #486581;
+        }
+    }
+}
