@@ -1,14 +1,5 @@
 import {
-    Button,
-    CheckBox,
-    ComboBox,
-    HorizontalBox,
-    LineEdit,
     ScrollView,
-    Slider,
-    SpinBox,
-    Switch,
-    VerticalBox
 } from "std-widgets.slint";
 import { DashboardPage } from "pages/dashboard.slint";
 import { LayoutsPage } from "pages/layouts.slint";
@@ -66,11 +57,13 @@ export component AppWindow inherits Window {
     in property <string> page-category: "";
     in property <string> page-notes: "";
     in property <string> shared-status: "";
+    in property <string> dashboard-status-summary: "";
     in property <string> learner-name: "";
     in property <string> cohort-name: "";
     in property <string> theme-name: "";
     in property <int> total-pages: 0;
     callback request-page(int);
+    callback dashboard-action(string);
 
     VerticalLayout {
         padding: 18px;
@@ -264,6 +257,9 @@ export component AppWindow inherits Window {
                             cohort-name: cohort-name;
                             theme-name: theme-name;
                             shared-status: shared-status;
+                            status-summary: dashboard-status-summary;
+                            request-page(page-index) => { root.request-page(page-index); }
+                            trigger-action(action-id) => { root.dashboard-action(action-id); }
                         }
                         if current-page == 1 : LayoutsPage {}
                         if current-page == 2 : ButtonsAndInputsPage {}
