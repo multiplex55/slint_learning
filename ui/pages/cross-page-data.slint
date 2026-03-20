@@ -1,9 +1,20 @@
-import { ScrollView } from "std-widgets.slint";
+import { Button, LineEdit, ScrollView } from "std-widgets.slint";
+
 export component CrossPageDataPage inherits Rectangle {
     in property <string> learner-name;
     in property <string> cohort-name;
     in property <string> theme-name;
     in property <string> shared-status;
+    in property <string> shared-note-text;
+    in property <string> shared-note-status;
+    in property <int> shared-progress-value;
+    in property <string> shared-progress-label;
+    in property <string> dashboard-preview-text;
+    in property <string> editor-hint;
+    in property <string> sync-notes;
+    callback update-note(string);
+    callback adjust-progress(int);
+    callback reset-demo();
 
     background: #ffffff;
     border-radius: 16px;
@@ -16,36 +27,88 @@ export component CrossPageDataPage inherits Rectangle {
             padding: 18px;
             spacing: 16px;
 
-            Text { text: "This page reuses the same Rust-provided values shown on the dashboard to make shared application state tangible."; wrap: word-wrap; color: #52606d; }
+            Text {
+                text: "This page is the source/editor for the shared Rust-owned demo state. Edit here and then switch back to the dashboard to watch the same values update there.";
+                wrap: word-wrap;
+                color: #52606d;
+            }
 
             HorizontalLayout {
                 spacing: 14px;
+
                 Rectangle {
                     background: #eff6ff;
                     border-radius: 14px;
                     border-width: 1px;
                     border-color: #bfdbfe;
-                    min-width: 280px;
+                    min-width: 430px;
+
                     VerticalLayout {
                         padding: 16px;
-                        spacing: 8px;
-                        Text { text: "Shared identity"; font-size: 20px; font-weight: 800; color: #1d4ed8; }
-                        Text { text: "Learner: " + learner-name; color: #1e40af; }
-                        Text { text: "Cohort: " + cohort-name; color: #1e40af; }
+                        spacing: 10px;
+
+                        Text { text: "Edit here → source page"; font-size: 22px; font-weight: 800; color: #1d4ed8; }
+                        Text { text: editor-hint; wrap: word-wrap; color: #1e40af; }
+                        Text { text: "Shared note (one-way flow into dashboard labels)"; font-weight: 700; color: #1e3a8a; }
+                        // The LineEdit mirrors the Rust-owned property so the UI always reflects validated/reset values.
+                        note-entry := LineEdit {
+                            text: shared-note-text;
+                            accepted => { root.update-note(note-entry.text); }
+                        }
+                        HorizontalLayout {
+                            spacing: 10px;
+                            Button { text: "Apply note"; clicked => { root.update-note(note-entry.text); } }
+                            Button { text: "Use default note"; clicked => { root.reset-demo(); } }
+                        }
+                        Text { text: shared-note-status; wrap: word-wrap; color: #1e40af; }
+
+                        Rectangle {
+                            background: #dbeafe;
+                            border-radius: 12px;
+                            border-width: 1px;
+                            border-color: #93c5fd;
+                            VerticalLayout {
+                                padding: 12px;
+                                spacing: 6px;
+                                Text { text: "Shared context still comes from Rust"; font-size: 16px; font-weight: 700; color: #1e3a8a; }
+                                Text { text: "Learner: " + learner-name; color: #1e40af; }
+                                Text { text: "Cohort: " + cohort-name; color: #1e40af; }
+                                Text { text: "Theme: " + theme-name; color: #1e40af; }
+                            }
+                        }
                     }
                 }
+
                 Rectangle {
                     background: #f0fdf4;
                     border-radius: 14px;
                     border-width: 1px;
                     border-color: #86efac;
-                    min-width: 280px;
+                    min-width: 360px;
+
                     VerticalLayout {
                         padding: 16px;
-                        spacing: 8px;
-                        Text { text: "Shared presentation"; font-size: 20px; font-weight: 800; color: #15803d; }
-                        Text { text: "Theme: " + theme-name; color: #166534; }
-                        Text { text: "Notice that the page does not own this value; it receives it from the shell."; wrap: word-wrap; color: #166534; }
+                        spacing: 10px;
+
+                        Text { text: "Watch update there → dashboard preview"; font-size: 22px; font-weight: 800; color: #15803d; }
+                        Text { text: dashboard-preview-text; wrap: word-wrap; color: #166534; }
+                        Text { text: shared-progress-label; font-weight: 700; color: #166534; }
+                        Rectangle {
+                            height: 18px;
+                            background: #dcfce7;
+                            border-radius: 999px;
+                            Rectangle {
+                                width: parent.width * shared-progress-value / 100;
+                                height: parent.height;
+                                background: #22c55e;
+                                border-radius: 999px;
+                            }
+                        }
+                        Text {
+                            text: "Two-way interaction example: both this page and the dashboard can adjust the same shared progress value through Rust callbacks.";
+                            wrap: word-wrap;
+                            color: #166534;
+                        }
                     }
                 }
             }
@@ -55,12 +118,36 @@ export component CrossPageDataPage inherits Rectangle {
                 border-radius: 14px;
                 border-width: 1px;
                 border-color: #fde68a;
+
                 VerticalLayout {
                     padding: 16px;
                     spacing: 10px;
-                    Text { text: "What to learn here"; font-size: 20px; font-weight: 800; color: #92400e; }
-                    Text { text: shared-status; wrap: word-wrap; color: #b45309; }
-                    Text { text: "If you later add callbacks or editable fields, this page is a good place to show how one change can affect multiple demos."; wrap: word-wrap; color: #b45309; }
+
+                    Text { text: "Two-way shared progress controls"; font-size: 20px; font-weight: 800; color: #92400e; }
+                    Text { text: "Edit here and on the dashboard. Rust keeps the canonical numeric value, clamps it, and republishes it back to both pages."; wrap: word-wrap; color: #b45309; }
+                    Text { text: "Current value: " + shared-progress-value + "%"; color: #92400e; }
+
+                    HorizontalLayout {
+                        spacing: 10px;
+                        Button { text: "-10"; clicked => { root.adjust-progress(-10); } }
+                        Button { text: "+10"; clicked => { root.adjust-progress(10); } }
+                        Button { text: "Reset demo"; clicked => { root.reset-demo(); } }
+                    }
+                }
+            }
+
+            Rectangle {
+                background: #f8fafc;
+                border-radius: 14px;
+                border-width: 1px;
+                border-color: #d9e2ec;
+
+                VerticalLayout {
+                    padding: 16px;
+                    spacing: 8px;
+                    Text { text: "Data flow notes"; font-size: 20px; font-weight: 800; color: #334155; }
+                    Text { text: shared-status; wrap: word-wrap; color: #475569; }
+                    Text { text: sync-notes; wrap: word-wrap; color: #475569; }
                 }
             }
         }

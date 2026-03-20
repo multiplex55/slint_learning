@@ -46,6 +46,18 @@ If you are learning Slint step by step, a good reading order is:
 4. `src/models.rs` to see the initial shared state and simple transformation logic.
 5. `build.rs` to understand how `.slint` files become available through `slint::include_modules!()`.
 
+## Cross-page shared state lesson
+
+The `Cross-page Data` page is now a dedicated teaching example for shared Rust-side state.
+
+- **Where state lives:** `src/models.rs` owns the canonical `SharedLearningState`, including the shared note text and progress value.
+- **How Slint updates Rust:** `ui/pages/cross-page-data.slint` emits callbacks when the learner applies a note or adjusts progress, and `src/app.rs` handles those callbacks.
+- **How Rust pushes changes back:** `src/app.rs` recomputes a small cross-page view model and republishes it into `AppWindow` properties that both `ui/pages/cross-page-data.slint` and `ui/pages/dashboard.slint` read.
+- **Direct binding vs callbacks:** keep direct bindings for values that stay local to one component; use callbacks when Rust must validate, clamp, reset, or share a value across pages.
+- **Rust ownership caveat:** the app uses `Rc<RefCell<SharedLearningState>>` so multiple Slint callbacks can mutate one shared state object without fighting ownership or lifetime rules.
+
+This gives you one **one-way** example (editing a note on the source page and only displaying it on the dashboard) and one **two-way** example (both pages can adjust the same shared progress value through Rust-owned state).
+
 ## Included test seams
 
 The initial structure already includes unit-test-ready seams for:

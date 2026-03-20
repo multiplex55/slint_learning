@@ -53,8 +53,15 @@ export component DashboardPage inherits Rectangle {
     in property <string> theme-name;
     in property <string> shared-status;
     in property <string> status-summary;
+    in property <string> shared-note-text;
+    in property <string> shared-note-status;
+    in property <int> shared-progress-value;
+    in property <string> shared-progress-label;
+    in property <string> dashboard-preview-text;
+    in property <string> sync-notes;
     callback request-page(int);
     callback trigger-action(string);
+    callback adjust-progress(int);
 
     property <bool> file-menu-open: false;
     property <bool> view-menu-open: false;
@@ -370,24 +377,34 @@ export component DashboardPage inherits Rectangle {
                 }
 
                 Rectangle {
-                    background: #fffbeb;
+                    background: #f0fdf4;
                     border-radius: 14px;
                     border-width: 1px;
-                    border-color: #fde68a;
+                    border-color: #86efac;
                     min-width: 320px;
 
                     VerticalLayout {
                         padding: 16px;
                         spacing: 10px;
-                        Text { text: "What this app teaches"; font-size: 20px; font-weight: 800; color: #92400e; }
-                        for item in [
-                            "How Rust can own navigation and command dispatch while Slint renders the shell.",
-                            "How desktop-style menus can be modeled with explicit callbacks and visible state changes.",
-                            "How shared shell state can feed multiple pages without duplicating logic."
-                        ] : Text {
-                            text: "• " + item;
-                            wrap: word-wrap;
-                            color: #b45309;
+                        Text { text: "Watch update there → dashboard preview"; font-size: 20px; font-weight: 800; color: #15803d; }
+                        Text { text: dashboard-preview-text; wrap: word-wrap; color: #166534; }
+                        Text { text: shared-note-status; wrap: word-wrap; color: #166534; }
+                        Text { text: shared-progress-label; font-weight: 700; color: #166534; }
+                        Rectangle {
+                            height: 18px;
+                            background: #dcfce7;
+                            border-radius: 999px;
+                            Rectangle {
+                                width: parent.width * shared-progress-value / 100;
+                                height: parent.height;
+                                background: #22c55e;
+                                border-radius: 999px;
+                            }
+                        }
+                        HorizontalLayout {
+                            spacing: 10px;
+                            Button { text: "-10 here"; clicked => { root.adjust-progress(-10); } }
+                            Button { text: "+10 here"; clicked => { root.adjust-progress(10); } }
                         }
                     }
                 }
@@ -421,6 +438,8 @@ export component DashboardPage inherits Rectangle {
                     Text { text: "Learner: " + learner-name; color: #334155; }
                     Text { text: "Cohort: " + cohort-name; color: #334155; }
                     Text { text: "Theme: " + theme-name; color: #334155; }
+                    Text { text: "Shared note: " + shared-note-text; wrap: word-wrap; color: #334155; }
+                    Text { text: sync-notes; wrap: word-wrap; color: #475569; }
                 }
             }
         }

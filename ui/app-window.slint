@@ -61,9 +61,19 @@ export component AppWindow inherits Window {
     in property <string> learner-name: "";
     in property <string> cohort-name: "";
     in property <string> theme-name: "";
+    in property <string> shared-note-text: "";
+    in property <string> shared-note-status: "";
+    in property <int> shared-progress-value: 0;
+    in property <string> shared-progress-label: "";
+    in property <string> dashboard-preview-text: "";
+    in property <string> editor-hint: "";
+    in property <string> sync-notes: "";
     in property <int> total-pages: 0;
     callback request-page(int);
     callback dashboard-action(string);
+    callback update-shared-note(string);
+    callback adjust-shared-progress(int);
+    callback reset-cross-page-demo();
 
     VerticalLayout {
         padding: 18px;
@@ -258,8 +268,15 @@ export component AppWindow inherits Window {
                             theme-name: theme-name;
                             shared-status: shared-status;
                             status-summary: dashboard-status-summary;
+                            shared-note-text: shared-note-text;
+                            shared-note-status: shared-note-status;
+                            shared-progress-value: shared-progress-value;
+                            shared-progress-label: shared-progress-label;
+                            dashboard-preview-text: dashboard-preview-text;
+                            sync-notes: sync-notes;
                             request-page(page-index) => { root.request-page(page-index); }
                             trigger-action(action-id) => { root.dashboard-action(action-id); }
+                            adjust-progress(delta) => { root.adjust-shared-progress(delta); }
                         }
                         if current-page == 1 : LayoutsPage {}
                         if current-page == 2 : ButtonsAndInputsPage {}
@@ -271,6 +288,16 @@ export component AppWindow inherits Window {
                             cohort-name: cohort-name;
                             theme-name: theme-name;
                             shared-status: shared-status;
+                            shared-note-text: shared-note-text;
+                            shared-note-status: shared-note-status;
+                            shared-progress-value: shared-progress-value;
+                            shared-progress-label: shared-progress-label;
+                            dashboard-preview-text: dashboard-preview-text;
+                            editor-hint: editor-hint;
+                            sync-notes: sync-notes;
+                            update-note(note-text) => { root.update-shared-note(note-text); }
+                            adjust-progress(delta) => { root.adjust-shared-progress(delta); }
+                            reset-demo() => { root.reset-cross-page-demo(); }
                         }
                     }
                 }
