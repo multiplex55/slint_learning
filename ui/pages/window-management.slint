@@ -1,0 +1,55 @@
+import { ScrollView } from "std-widgets.slint";
+export component WindowManagementPage inherits Rectangle {
+    background: #ffffff;
+    border-radius: 16px;
+
+    ScrollView {
+        viewport-height: 560px;
+        viewport-width: 920px;
+
+        VerticalLayout {
+            padding: 18px;
+            spacing: 16px;
+
+            Text { text: "Use this page to discuss shell-level concerns such as top-level regions, status messages, and workflow framing rather than low-level widget details."; wrap: word-wrap; color: #52606d; }
+
+            Rectangle {
+                background: #f8fafc;
+                border-radius: 14px;
+                border-width: 1px;
+                border-color: #d9e2ec;
+                VerticalLayout {
+                    padding: 16px;
+                    spacing: 12px;
+                    Text { text: "Window shell checklist"; font-size: 20px; font-weight: 800; color: #102a43; }
+                    for item in [
+                        "A header gives orientation and sets the learning goal.",
+                        "Navigation keeps page switching predictable.",
+                        "A central content area isolates the current demo.",
+                        "A footer can carry small teaching notes or status messages."
+                    ] : Rectangle {
+                        background: #ffffff;
+                        border-radius: 10px;
+                        border-width: 1px;
+                        border-color: #d9e2ec;
+                        min-height: 52px;
+                        Text { text: item; wrap: word-wrap; vertical-alignment: center; color: #334e68; x: 12px; width: parent.width - 24px; }
+                    }
+                }
+            }
+
+            Rectangle {
+                background: #ecfeff;
+                border-radius: 14px;
+                border-width: 1px;
+                border-color: #a5f3fc;
+                VerticalLayout {
+                    padding: 16px;
+                    spacing: 10px;
+                    Text { text: "Why this page matters"; font-size: 20px; font-weight: 800; color: #155e75; }
+                    Text { text: "Learners often jump straight to widgets. This page reminds them that a GUI shell also teaches navigation, structure, and flow."; wrap: word-wrap; color: #0f766e; }
+                }
+            }
+        }
+    }
+}

@@ -1,13 +1,14 @@
-//! Application wiring lives here so `main.rs` stays tiny and the view-model style
-//! glue can evolve without hiding navigation or shared-state concepts from learners.
+//! Application wiring keeps the shell focused on the split between testable Rust state
+//! and declarative Slint page composition.
 
 use std::cell::RefCell;
 use std::rc::Rc;
 
-use crate::models::SharedLearningState;
-use crate::navigation::LearningPage;
-use crate::AppWindow;
 use slint::ComponentHandle;
+
+use crate::models::SharedLearningState;
+use crate::navigation::{page_category, page_description, page_title, PageId};
+use crate::AppWindow;
 
 pub fn run_desktop_learning_app() -> Result<(), slint::PlatformError> {
     let app_window = AppWindow::new()?;
@@ -33,19 +34,13 @@ fn apply_state_to_ui(app_window: &AppWindow, state: &SharedLearningState) {
     let current_page = state.navigation.current_page;
 
     app_window.set_current_page(current_page.as_index());
-    app_window.set_page_title(current_page.title().into());
-    app_window.set_shared_state_summary(state.page_summary(current_page).into());
-    app_window.set_completed_topic_count(state.completed_topics.len() as i32);
-    app_window.set_welcome_message(
-        format!(
-            "Explore each page to compare Rust-side state with Slint-side presentation, {}.",
-            state.learner_name
-        )
-        .into(),
-    );
-    app_window.set_generated_code_summary(
-        state
-            .page_summary(LearningPage::GeneratedCodePatterns)
-            .into(),
-    );
+    app_window.set_page_title(page_title(current_page).into());
+    app_window.set_page_description(page_description(current_page).into());
+    app_window.set_page_category(page_category(current_page).into());
+    app_window.set_page_notes(state.page_focus_prompt(current_page).into());
+    app_window.set_shared_status(state.shared_status().into());
+    app_window.set_learner_name(state.learner_name.clone().into());
+    app_window.set_cohort_name(state.cohort_name.clone().into());
+    app_window.set_theme_name(state.current_theme.clone().into());
+    app_window.set_total_pages(PageId::ALL.len() as i32);
 }

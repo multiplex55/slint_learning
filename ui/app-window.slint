@@ -1,96 +1,308 @@
-// The root window imports smaller page files so learners can grow the project one demo at a time.
-// Notice the explicit properties and callback: they form a simple contract between Rust and Slint.
+import {
+    Button,
+    CheckBox,
+    ComboBox,
+    HorizontalBox,
+    LineEdit,
+    ScrollView,
+    Slider,
+    SpinBox,
+    Switch,
+    VerticalBox
+} from "std-widgets.slint";
+import { DashboardPage } from "pages/dashboard.slint";
+import { LayoutsPage } from "pages/layouts.slint";
+import { ButtonsAndInputsPage } from "pages/buttons-and-inputs.slint";
+import { ListsAndModelsPage } from "pages/lists-and-models.slint";
+import { StylingAndThemesPage } from "pages/styling-and-themes.slint";
+import { WindowManagementPage } from "pages/window-management.slint";
+import { CrossPageDataPage } from "pages/cross-page-data.slint";
 
-import { Button, VerticalBox, HorizontalBox } from "std-widgets.slint";
-import { WelcomePage } from "pages/welcome-page.slint";
-import { SharedStatePage } from "pages/shared-state-page.slint";
-import { GeneratedCodePage } from "pages/generated-code-page.slint";
+component NavigationButton inherits Rectangle {
+    in property <string> label;
+    in property <string> category;
+    in property <bool> selected;
+    callback clicked;
+
+    min-height: 68px;
+    border-radius: 12px;
+    background: selected ? #dbeafe : #ffffff;
+    border-width: 1px;
+    border-color: selected ? #60a5fa : #d7dde5;
+
+    TouchArea {
+        clicked => { root.clicked(); }
+        mouse-cursor: pointer;
+    }
+
+    VerticalLayout {
+        padding: 12px;
+        spacing: 4px;
+
+        Text {
+            text: label;
+            font-size: 16px;
+            font-weight: 700;
+            color: #102a43;
+        }
+
+        Text {
+            text: category;
+            color: #52606d;
+            font-size: 12px;
+        }
+    }
+}
 
 export component AppWindow inherits Window {
-    width: 960px;
-    height: 640px;
+    width: 1320px;
+    height: 860px;
     title: "Slint Learning Workspace";
-    background: #e5e7eb;
+    background: #edf2f7;
 
     in-out property <int> current-page: 0;
-    in property <string> page-title: "Welcome overview";
-    in property <string> welcome-message: "";
-    in property <string> shared-state-summary: "";
-    in property <string> generated-code-summary: "";
-    in property <int> completed-topic-count: 0;
+    in property <string> page-title: "Dashboard";
+    in property <string> page-description: "";
+    in property <string> page-category: "";
+    in property <string> page-notes: "";
+    in property <string> shared-status: "";
+    in property <string> learner-name: "";
+    in property <string> cohort-name: "";
+    in property <string> theme-name: "";
+    in property <int> total-pages: 0;
     callback request-page(int);
 
-    HorizontalBox {
-        spacing: 16px;
-        padding: 16px;
+    VerticalLayout {
+        padding: 18px;
+        spacing: 14px;
 
         Rectangle {
-            min-width: 220px;
-            background: white;
-            border-radius: 12px;
+            background: #ffffff;
+            border-radius: 18px;
+            border-width: 1px;
+            border-color: #d9e2ec;
+            min-height: 112px;
 
-            VerticalBox {
-                padding: 16px;
-                spacing: 12px;
+            HorizontalLayout {
+                padding: 18px;
+                spacing: 18px;
 
-                Text {
-                    text: "Learning pages";
-                    font-size: 22px;
-                    font-weight: 700;
-                    color: #111827;
+                VerticalLayout {
+                    spacing: 6px;
+
+                    Text {
+                        text: "Slint Demo Shell";
+                        font-size: 30px;
+                        font-weight: 800;
+                        color: #102a43;
+                    }
+
+                    Text {
+                        text: "An intentionally instructional desktop shell that hosts focused demo pages and keeps the navigation model testable in Rust.";
+                        wrap: word-wrap;
+                        color: #486581;
+                    }
                 }
 
-                Text {
-                    text: "Use the left navigation to inspect one concept at a time.";
-                    wrap: word-wrap;
-                    color: #4b5563;
-                }
+                Rectangle {
+                    min-width: 320px;
+                    background: #f8fafc;
+                    border-radius: 14px;
+                    border-width: 1px;
+                    border-color: #d9e2ec;
 
-                Button {
-                    text: "Welcome overview";
-                    clicked => { root.request-page(0); }
-                }
+                    VerticalLayout {
+                        padding: 14px;
+                        spacing: 4px;
 
-                Button {
-                    text: "Shared state patterns";
-                    clicked => { root.request-page(1); }
-                }
+                        Text {
+                            text: "Shared teaching context";
+                            font-size: 14px;
+                            font-weight: 700;
+                            color: #334e68;
+                        }
 
-                Button {
-                    text: "Generated code patterns";
-                    clicked => { root.request-page(2); }
+                        Text {
+                            text: shared-status;
+                            wrap: word-wrap;
+                            color: #52606d;
+                        }
+                    }
+                }
+            }
+        }
+
+        HorizontalLayout {
+            spacing: 14px;
+
+            Rectangle {
+                min-width: 280px;
+                background: #f8fbff;
+                border-radius: 18px;
+                border-width: 1px;
+                border-color: #d9e2ec;
+
+                VerticalLayout {
+                    padding: 16px;
+                    spacing: 12px;
+
+                    Text {
+                        text: "Navigation";
+                        font-size: 24px;
+                        font-weight: 800;
+                        color: #102a43;
+                    }
+
+                    Text {
+                        text: "Each entry maps to a Rust `PageId` so ordering, labels, and grouping stay easy to test.";
+                        wrap: word-wrap;
+                        color: #52606d;
+                    }
+
+                    ScrollView {
+                        viewport-width: 240px;
+                        viewport-height: 560px;
+
+                        VerticalLayout {
+                            spacing: 10px;
+
+                            NavigationButton {
+                                label: "Dashboard";
+                                category: "Getting Started";
+                                selected: current-page == 0;
+                                clicked => { root.request-page(0); }
+                            }
+                            NavigationButton {
+                                label: "Layouts";
+                                category: "Layout Patterns";
+                                selected: current-page == 1;
+                                clicked => { root.request-page(1); }
+                            }
+                            NavigationButton {
+                                label: "Buttons and Inputs";
+                                category: "Interactive Widgets";
+                                selected: current-page == 2;
+                                clicked => { root.request-page(2); }
+                            }
+                            NavigationButton {
+                                label: "Lists and Models";
+                                category: "Interactive Widgets";
+                                selected: current-page == 3;
+                                clicked => { root.request-page(3); }
+                            }
+                            NavigationButton {
+                                label: "Styling and Themes";
+                                category: "Presentation";
+                                selected: current-page == 4;
+                                clicked => { root.request-page(4); }
+                            }
+                            NavigationButton {
+                                label: "Window Management";
+                                category: "Application Shell";
+                                selected: current-page == 5;
+                                clicked => { root.request-page(5); }
+                            }
+                            NavigationButton {
+                                label: "Cross-page Data";
+                                category: "Application Shell";
+                                selected: current-page == 6;
+                                clicked => { root.request-page(6); }
+                            }
+                        }
+                    }
+                }
+            }
+
+            Rectangle {
+                background: #ffffff;
+                border-radius: 18px;
+                border-width: 1px;
+                border-color: #d9e2ec;
+
+                VerticalLayout {
+                    padding: 18px;
+                    spacing: 14px;
+
+                    Rectangle {
+                        background: #f8fafc;
+                        border-radius: 16px;
+                        border-width: 1px;
+                        border-color: #d9e2ec;
+
+                        VerticalLayout {
+                            padding: 16px;
+                            spacing: 6px;
+
+                            Text {
+                                text: page-title;
+                                font-size: 28px;
+                                font-weight: 800;
+                                color: #102a43;
+                            }
+
+                            Text {
+                                text: page-category + " • demo " + (current-page + 1) + " of " + total-pages;
+                                color: #486581;
+                            }
+
+                            Text {
+                                text: page-description;
+                                wrap: word-wrap;
+                                color: #52606d;
+                            }
+                        }
+                    }
+
+                    Rectangle {
+                        background: #fdfefe;
+                        border-radius: 16px;
+                        border-width: 1px;
+                        border-color: #e4e7eb;
+
+                        if current-page == 0 : DashboardPage {
+                            learner-name: learner-name;
+                            cohort-name: cohort-name;
+                            theme-name: theme-name;
+                            shared-status: shared-status;
+                        }
+                        if current-page == 1 : LayoutsPage {}
+                        if current-page == 2 : ButtonsAndInputsPage {}
+                        if current-page == 3 : ListsAndModelsPage {}
+                        if current-page == 4 : StylingAndThemesPage { theme-name: theme-name; }
+                        if current-page == 5 : WindowManagementPage {}
+                        if current-page == 6 : CrossPageDataPage {
+                            learner-name: learner-name;
+                            cohort-name: cohort-name;
+                            theme-name: theme-name;
+                            shared-status: shared-status;
+                        }
+                    }
                 }
             }
         }
 
         Rectangle {
-            background: white;
-            border-radius: 12px;
+            background: #fff7ed;
+            border-radius: 16px;
             border-width: 1px;
-            border-color: #d1d5db;
+            border-color: #fed7aa;
+            min-height: 82px;
 
-            VerticalBox {
-                padding: 16px;
-                spacing: 12px;
+            VerticalLayout {
+                padding: 14px;
+                spacing: 4px;
 
                 Text {
-                    text: page-title;
-                    font-size: 28px;
+                    text: "Teaching note";
+                    font-size: 14px;
                     font-weight: 700;
-                    color: #111827;
+                    color: #9a3412;
                 }
 
-                if current-page == 0 : WelcomePage {
-                    message: welcome-message;
-                }
-
-                if current-page == 1 : SharedStatePage {
-                    summary: shared-state-summary;
-                    completed-topic-count: completed-topic-count;
-                }
-
-                if current-page == 2 : GeneratedCodePage {
-                    summary: generated-code-summary;
+                Text {
+                    text: page-notes;
+                    wrap: word-wrap;
+                    color: #9a3412;
                 }
             }
         }

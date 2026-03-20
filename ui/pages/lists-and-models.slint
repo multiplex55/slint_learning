@@ -1,0 +1,61 @@
+import { ScrollView } from "std-widgets.slint";
+export component ListsAndModelsPage inherits Rectangle {
+    background: #ffffff;
+    border-radius: 16px;
+
+    ScrollView {
+        viewport-height: 560px;
+        viewport-width: 920px;
+
+        VerticalLayout {
+            padding: 18px;
+            spacing: 16px;
+
+            Text { text: "This page uses repeated elements and a scroll view to preview how list-based UIs can scale to real data models later."; wrap: word-wrap; color: #52606d; }
+
+            Rectangle {
+                background: #f8fafc;
+                border-radius: 14px;
+                border-width: 1px;
+                border-color: #d9e2ec;
+                VerticalLayout {
+                    padding: 16px;
+                    spacing: 12px;
+                    Text { text: "Repeated lesson cards"; font-size: 20px; font-weight: 800; color: #102a43; }
+                    for lesson[index] in [
+                        "Bind repeated content to a list model.",
+                        "Wrap long collections in a scroll view.",
+                        "Use cards when each item needs explanatory text.",
+                        "Show indexes when teaching ordering and identity.",
+                        "Separate metadata from visual layout."
+                    ] : Rectangle {
+                        background: Math.mod(index, 2) == 0 ? #eff6ff : #f0fdf4;
+                        border-radius: 12px;
+                        border-width: 1px;
+                        border-color: Math.mod(index, 2) == 0 ? #bfdbfe : #86efac;
+                        min-height: 64px;
+                        HorizontalLayout {
+                            padding: 12px;
+                            spacing: 10px;
+                            Rectangle { min-width: 28px; height: 28px; background: white; border-radius: 999px; Text { text: (index + 1); horizontal-alignment: center; vertical-alignment: center; color: #334e68; } }
+                            Text { text: lesson; wrap: word-wrap; color: #334e68; }
+                        }
+                    }
+                }
+            }
+
+            Rectangle {
+                background: #faf5ff;
+                border-radius: 14px;
+                border-width: 1px;
+                border-color: #d8b4fe;
+                VerticalLayout {
+                    padding: 16px;
+                    spacing: 12px;
+                    Text { text: "Why this matters"; font-size: 20px; font-weight: 800; color: #6b21a8; }
+                    Text { text: "These repeated cards are still static text today, but they mimic the shape of data-driven UIs you can later populate from Rust models."; wrap: word-wrap; color: #7e22ce; }
+                }
+            }
+        }
+    }
+}

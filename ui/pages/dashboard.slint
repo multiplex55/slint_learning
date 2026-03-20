@@ -1,0 +1,101 @@
+import { ScrollView } from "std-widgets.slint";
+export component DashboardPage inherits Rectangle {
+    in property <string> learner-name;
+    in property <string> cohort-name;
+    in property <string> theme-name;
+    in property <string> shared-status;
+
+    background: #ffffff;
+    border-radius: 16px;
+
+    ScrollView {
+        viewport-height: 560px;
+        viewport-width: 920px;
+
+        VerticalLayout {
+            padding: 18px;
+            spacing: 16px;
+
+            Rectangle {
+                background: #eff6ff;
+                border-radius: 14px;
+                border-width: 1px;
+                border-color: #bfdbfe;
+
+                VerticalLayout {
+                    padding: 16px;
+                    spacing: 8px;
+
+                    Text { text: "Shell overview"; font-size: 22px; font-weight: 800; color: #1d4ed8; }
+                    Text {
+                        text: "This dashboard is the orientation page. It names the shell regions, shows the shared context supplied by Rust, and previews the kinds of demos hosted in the center panel.";
+                        wrap: word-wrap;
+                        color: #1e3a8a;
+                    }
+                    Text { text: shared-status; wrap: word-wrap; color: #1e40af; }
+                }
+            }
+
+            HorizontalLayout {
+                spacing: 14px;
+
+                Rectangle {
+                    background: #f8fafc;
+                    border-radius: 14px;
+                    border-width: 1px;
+                    border-color: #d9e2ec;
+                    min-width: 250px;
+
+                    VerticalLayout {
+                        padding: 16px;
+                        spacing: 8px;
+                        Text { text: "Header"; font-size: 18px; font-weight: 700; color: #102a43; }
+                        Text { text: "Introduces the shell and anchors the shared teaching context."; wrap: word-wrap; color: #52606d; }
+                    }
+                }
+                Rectangle {
+                    background: #f8fafc;
+                    border-radius: 14px;
+                    border-width: 1px;
+                    border-color: #d9e2ec;
+                    min-width: 250px;
+                    VerticalLayout {
+                        padding: 16px;
+                        spacing: 8px;
+                        Text { text: "Navigation"; font-size: 18px; font-weight: 700; color: #102a43; }
+                        Text { text: "Maps one button to one Rust `PageId`, keeping the shell extendable and testable."; wrap: word-wrap; color: #52606d; }
+                    }
+                }
+                Rectangle {
+                    background: #f8fafc;
+                    border-radius: 14px;
+                    border-width: 1px;
+                    border-color: #d9e2ec;
+                    min-width: 250px;
+                    VerticalLayout {
+                        padding: 16px;
+                        spacing: 8px;
+                        Text { text: "Footer note"; font-size: 18px; font-weight: 700; color: #102a43; }
+                        Text { text: "Shows a compact instructional prompt for the currently selected page."; wrap: word-wrap; color: #52606d; }
+                    }
+                }
+            }
+
+            Rectangle {
+                background: #fffbeb;
+                border-radius: 14px;
+                border-width: 1px;
+                border-color: #fde68a;
+
+                VerticalLayout {
+                    padding: 16px;
+                    spacing: 10px;
+                    Text { text: "Shared context from Rust"; font-size: 20px; font-weight: 800; color: #92400e; }
+                    Text { text: "Learner: " + learner-name; color: #b45309; }
+                    Text { text: "Cohort: " + cohort-name; color: #b45309; }
+                    Text { text: "Theme: " + theme-name; color: #b45309; }
+                }
+            }
+        }
+    }
+}

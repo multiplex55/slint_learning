@@ -1,0 +1,73 @@
+import { ScrollView } from "std-widgets.slint";
+export component StylingAndThemesPage inherits Rectangle {
+    in property <string> theme-name;
+
+    background: #ffffff;
+    border-radius: 16px;
+
+    ScrollView {
+        viewport-height: 560px;
+        viewport-width: 920px;
+
+        VerticalLayout {
+            padding: 18px;
+            spacing: 16px;
+
+            Rectangle {
+                background: #111827;
+                border-radius: 14px;
+                min-height: 96px;
+                VerticalLayout {
+                    padding: 16px;
+                    spacing: 6px;
+                    Text { text: "Theme preview"; font-size: 22px; font-weight: 800; color: white; }
+                    Text { text: "Current teaching theme: " + theme-name; color: #d1d5db; }
+                    Text { text: "Use a high-contrast hero card to explain typography, emphasis, and contrast."; wrap: word-wrap; color: #e5e7eb; }
+                }
+            }
+
+            HorizontalLayout {
+                spacing: 14px;
+                Rectangle {
+                    background: #eff6ff;
+                    border-radius: 14px;
+                    border-width: 1px;
+                    border-color: #bfdbfe;
+                    min-width: 280px;
+                    VerticalLayout {
+                        padding: 16px;
+                        spacing: 8px;
+                        Text { text: "Card styling"; font-size: 20px; font-weight: 800; color: #1d4ed8; }
+                        Text { text: "Rounded corners, subtle borders, and grouped text create a reusable panel pattern."; wrap: word-wrap; color: #1e3a8a; }
+                    }
+                }
+                Rectangle {
+                    background: #fef2f2;
+                    border-radius: 14px;
+                    border-width: 1px;
+                    border-color: #fecaca;
+                    min-width: 280px;
+                    VerticalLayout {
+                        padding: 16px;
+                        spacing: 8px;
+                        Text { text: "Color semantics"; font-size: 20px; font-weight: 800; color: #b91c1c; }
+                        Text { text: "Different palettes can represent information, warning, or accent areas without changing the layout."; wrap: word-wrap; color: #991b1b; }
+                    }
+                }
+            }
+
+            Rectangle {
+                background: #fffbeb;
+                border-radius: 14px;
+                border-width: 1px;
+                border-color: #fde68a;
+                VerticalLayout {
+                    padding: 16px;
+                    spacing: 10px;
+                    Text { text: "Teaching prompt"; font-size: 20px; font-weight: 800; color: #92400e; }
+                    Text { text: "Ask learners which parts of this page are style-only and which parts affect layout or behavior."; wrap: word-wrap; color: #b45309; }
+                }
+            }
+        }
+    }
+}
