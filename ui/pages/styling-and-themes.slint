@@ -1,4 +1,11 @@
 import { ScrollView } from "std-widgets.slint";
+
+// Styling lesson: this page keeps the layout simple so color, border, and typography choices are
+// easier to compare.
+// Watch for: the Rust-provided `theme-name` property flowing into an otherwise presentation-only
+// page.
+// Try changing this: swap palettes without changing spacing to separate style experiments from
+// layout experiments.
 export component StylingAndThemesPage inherits Rectangle {
     in property <string> theme-name;
 

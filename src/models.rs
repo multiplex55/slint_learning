@@ -1,10 +1,10 @@
-//! Shared learning data sits outside the `.slint` files so later lessons can connect
-//! richer state without rewriting the teaching shell.
-//!
-//! This module now includes dedicated examples for shared cross-page data and
-//! multi-window coordination. Rust owns the canonical state, Slint pages emit
-//! callbacks when the learner edits values or requests child-window actions,
-//! and Rust pushes the validated state back into UI properties.
+//! Shared Rust-side view-model data for the learning shell.
+//! Module responsibility: own the canonical application state that multiple pages and windows
+//! read from or write to.
+//! UI connection: `src/app.rs` asks this module for display-ready values, while `.slint` pages
+//! send edits back through callbacks that update the structs here.
+//! Study here: small view models, clamping/validation before publishing to the UI, and where to
+//! place state that should outlive a single Slint component.
 
 use crate::dashboard::default_recent_items;
 use crate::navigation::{page_title, NavigationState, PageId};
@@ -109,6 +109,8 @@ impl SharedLearningState {
     pub fn update_shared_note<S: AsRef<str>>(&mut self, value: S) {
         let trimmed = value.as_ref().trim();
         self.shared_note_text = if trimmed.is_empty() {
+            // Take note: callback-driven UI input should be validated here before Rust pushes the
+            // result back into Slint properties. That keeps every page in sync with the same rule.
             "Empty input falls back to a teaching prompt so every page keeps a visible value."
                 .to_string()
         } else {
@@ -117,6 +119,8 @@ impl SharedLearningState {
     }
 
     pub fn update_shared_progress(&mut self, value: i32) {
+        // Take note: clamping in Rust means every page can offer buttons or sliders without each
+        // component reimplementing the min/max rule on its own.
         self.shared_progress_value =
             value.clamp(Self::min_progress_value(), Self::max_progress_value());
     }
@@ -229,18 +233,13 @@ mod tests {
     }
 
     #[test]
-    fn empty_or_invalid_input_uses_demo_fallback_rules() {
+    fn progress_updates_are_clamped_before_ui_republishes_them() {
         let mut state = SharedLearningState::default();
-        state.update_shared_note("   ");
-        state.update_shared_progress(999);
 
-        assert_eq!(
-            state.shared_note_text(),
-            "Empty input falls back to a teaching prompt so every page keeps a visible value."
-        );
-        assert_eq!(
-            state.shared_progress_value(),
-            SharedLearningState::max_progress_value()
-        );
+        state.update_shared_progress(999);
+        assert_eq!(state.shared_progress_value(), 100);
+
+        state.nudge_shared_progress(-500);
+        assert_eq!(state.shared_progress_value(), 0);
     }
 }

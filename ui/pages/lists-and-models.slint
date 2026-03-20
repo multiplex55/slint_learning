@@ -1,4 +1,9 @@
 import { ScrollView } from "std-widgets.slint";
+
+// Repeated-content lesson: this page demonstrates a scrollable stack of cards rendered from a
+// list literal using Slint's `for` syntax.
+// Watch for: the repeated model, the `index` variable, and style changes derived from data.
+// Try changing this: add more lessons or derive a different border color from `index`.
 export component ListsAndModelsPage inherits Rectangle {
     background: #ffffff;
     border-radius: 16px;
@@ -22,6 +27,8 @@ export component ListsAndModelsPage inherits Rectangle {
                     padding: 16px;
                     spacing: 12px;
                     Text { text: "Repeated lesson cards"; font-size: 20px; font-weight: 800; color: #102a43; }
+                    // Take note: this static array stands in for a future Rust model. The syntax is
+                    // the same idea learners will use later with dynamic data.
                     for lesson[index] in [
                         "Bind repeated content to a list model.",
                         "Wrap long collections in a scroll view.",

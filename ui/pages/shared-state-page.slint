@@ -1,6 +1,7 @@
-// This page exists to make shared state visible without introducing complex widgets yet.
-// A learner can later replace these labels with models, list views, or editable form data.
-
+// Shared-state starter lesson: this compact component is useful when teaching property input
+// before introducing callbacks or cross-page synchronization.
+// Watch for: Rust-provided string and integer properties displayed directly in Slint.
+// Try changing this: replace the count label with a progress bar to practice another binding.
 export component SharedStatePage inherits Rectangle {
     in property <string> summary;
     in property <int> completed-topic-count;

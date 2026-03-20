@@ -1,3 +1,8 @@
+// Root shell lesson: this component demonstrates a classic desktop layout pattern with
+// a fixed navigation rail on the left and a content area on the right.
+// Watch for: top-level `in` properties that Rust updates, plus callbacks that send user actions
+// from Slint back into `src/app.rs`.
+// Next experiment: add another shell-level property/callback pair and trace it through Rust.
 import {
     ScrollView,
 } from "std-widgets.slint";
@@ -26,6 +31,8 @@ component NavigationButton inherits Rectangle {
     border-color: selected ? #60a5fa : #d7dde5;
 
     TouchArea {
+        // Take note: this tiny callback wrapper lets the visual button stay reusable while the
+        // parent decides what "clicked" means for navigation.
         clicked => { root.clicked(); }
         mouse-cursor: pointer;
     }
@@ -55,6 +62,8 @@ export component AppWindow inherits Window {
     title: "Slint Learning Workspace";
     background: #edf2f7;
 
+    // Take note: these properties form the Rust-to-Slint data surface. `src/app.rs` recomputes
+    // them after each meaningful action so pages can stay declarative.
     in-out property <int> current-page: 0;
     in property <string> page-title: "Dashboard";
     in property <string> page-description: "";
@@ -188,6 +197,8 @@ export component AppWindow inherits Window {
                         VerticalLayout {
                             spacing: 10px;
 
+                            // Try changing this: swap the order of two buttons here without
+                            // updating `src/navigation.rs` to see why the index mapping matters.
                             NavigationButton {
                                 label: "Dashboard";
                                 category: "Getting Started";
@@ -240,129 +251,90 @@ export component AppWindow inherits Window {
                 border-radius: 18px;
                 border-width: 1px;
                 border-color: #d9e2ec;
-
-                VerticalLayout {
+                HorizontalLayout {
                     padding: 18px;
-                    spacing: 14px;
+                    spacing: 18px;
 
-                    Rectangle {
-                        background: #f8fafc;
-                        border-radius: 16px;
-                        border-width: 1px;
-                        border-color: #d9e2ec;
-
-                        VerticalLayout {
-                            padding: 16px;
-                            spacing: 6px;
-
-                            Text {
-                                text: page-title;
-                                font-size: 28px;
-                                font-weight: 800;
-                                color: #102a43;
-                            }
-
-                            Text {
-                                text: page-category + " • demo " + (current-page + 1) + " of " + total-pages;
-                                color: #486581;
-                            }
-
-                            Text {
-                                text: page-description;
-                                wrap: word-wrap;
-                                color: #52606d;
-                            }
-                        }
+                    VerticalLayout {
+                        spacing: 8px;
+                        Text { text: page-category; font-size: 14px; font-weight: 700; color: #3b82f6; }
+                        Text { text: page-title; font-size: 28px; font-weight: 800; color: #102a43; }
+                        Text { text: page-description; wrap: word-wrap; color: #52606d; }
+                        Text { text: page-notes; wrap: word-wrap; color: #486581; }
                     }
 
                     Rectangle {
-                        background: #fdfefe;
-                        border-radius: 16px;
+                        min-width: 220px;
+                        background: #f8fafc;
+                        border-radius: 14px;
                         border-width: 1px;
-                        border-color: #e4e7eb;
-
-                        if current-page == 0 : DashboardPage {
-                            learner-name: learner-name;
-                            cohort-name: cohort-name;
-                            theme-name: theme-name;
-                            shared-status: shared-status;
-                            status-summary: dashboard-status-summary;
-                            shared-note-text: shared-note-text;
-                            shared-note-status: shared-note-status;
-                            shared-progress-value: shared-progress-value;
-                            shared-progress-label: shared-progress-label;
-                            dashboard-preview-text: dashboard-preview-text;
-                            sync-notes: sync-notes;
-                            request-page(page-index) => { root.request-page(page-index); }
-                            trigger-action(action-id) => { root.dashboard-action(action-id); }
-                            adjust-progress(delta) => { root.adjust-shared-progress(delta); }
-                        }
-                        if current-page == 1 : LayoutsPage {}
-                        if current-page == 2 : ButtonsAndInputsPage {}
-                        if current-page == 3 : ListsAndModelsPage {}
-                        if current-page == 4 : StylingAndThemesPage { theme-name: theme-name; }
-                        if current-page == 5 : WindowManagementPage {
-                            draft-text: window-demo-text;
-                            details-status: window-demo-details-status;
-                            inspector-status: window-demo-inspector-status;
-                            about-status: window-demo-about-status;
-                            child-feedback: window-demo-child-feedback;
-                            lifecycle-status: window-demo-lifecycle-status;
-                            instructional-text: window-demo-instructional-text;
-                            prepared-preview: window-demo-prepared-preview;
-                            update-draft-text(value) => { root.update-window-demo-text(value); }
-                            open-details-window() => { root.open-details-window(); }
-                            open-inspector-window() => { root.open-inspector-window(); }
-                            hide-inspector-window() => { root.hide-inspector-window(); }
-                            spawn-about-window() => { root.spawn-about-window(); }
-                            close-details-window() => { root.close-details-window(); }
-                            close-all-demo-windows() => { root.close-all-demo-windows(); }
-                        }
-                        if current-page == 6 : CrossPageDataPage {
-                            learner-name: learner-name;
-                            cohort-name: cohort-name;
-                            theme-name: theme-name;
-                            shared-status: shared-status;
-                            shared-note-text: shared-note-text;
-                            shared-note-status: shared-note-status;
-                            shared-progress-value: shared-progress-value;
-                            shared-progress-label: shared-progress-label;
-                            dashboard-preview-text: dashboard-preview-text;
-                            editor-hint: editor-hint;
-                            sync-notes: sync-notes;
-                            update-note(note-text) => { root.update-shared-note(note-text); }
-                            adjust-progress(delta) => { root.adjust-shared-progress(delta); }
-                            reset-demo() => { root.reset-cross-page-demo(); }
+                        border-color: #d9e2ec;
+                        VerticalLayout {
+                            padding: 14px;
+                            spacing: 4px;
+                            Text { text: "Shell stats"; font-size: 14px; font-weight: 700; color: #334e68; }
+                            Text { text: "Pages available: " + total-pages; color: #52606d; }
+                            Text { text: dashboard-status-summary; wrap: word-wrap; color: #52606d; }
                         }
                     }
                 }
             }
         }
 
-        Rectangle {
-            background: #fff7ed;
-            border-radius: 16px;
-            border-width: 1px;
-            border-color: #fed7aa;
-            min-height: 82px;
-
-            VerticalLayout {
-                padding: 14px;
-                spacing: 4px;
-
-                Text {
-                    text: "Teaching note";
-                    font-size: 14px;
-                    font-weight: 700;
-                    color: #9a3412;
-                }
-
-                Text {
-                    text: page-notes;
-                    wrap: word-wrap;
-                    color: #9a3412;
-                }
-            }
+        // Conditional page switching pattern: the root window owns the current-page index, and each
+        // page receives only the subset of properties/callbacks it needs for its lesson.
+        if current-page == 0 : DashboardPage {
+            learner-name: root.learner-name;
+            cohort-name: root.cohort-name;
+            theme-name: root.theme-name;
+            shared-status: root.shared-status;
+            status-summary: root.dashboard-status-summary;
+            shared-note-text: root.shared-note-text;
+            shared-note-status: root.shared-note-status;
+            shared-progress-value: root.shared-progress-value;
+            shared-progress-label: root.shared-progress-label;
+            dashboard-preview-text: root.dashboard-preview-text;
+            sync-notes: root.sync-notes;
+            request-page(index) => { root.request-page(index); }
+            trigger-action(action-id) => { root.dashboard-action(action-id); }
+            adjust-progress(delta) => { root.adjust-shared-progress(delta); }
+        }
+        if current-page == 1 : LayoutsPage {}
+        if current-page == 2 : ButtonsAndInputsPage {}
+        if current-page == 3 : ListsAndModelsPage {}
+        if current-page == 4 : StylingAndThemesPage { theme-name: root.theme-name; }
+        if current-page == 5 : WindowManagementPage {
+            draft-text: root.window-demo-text;
+            details-status: root.window-demo-details-status;
+            inspector-status: root.window-demo-inspector-status;
+            about-status: root.window-demo-about-status;
+            child-feedback: root.window-demo-child-feedback;
+            lifecycle-status: root.window-demo-lifecycle-status;
+            instructional-text: root.window-demo-instructional-text;
+            prepared-preview: root.window-demo-prepared-preview;
+            update-draft-text(value) => { root.update-window-demo-text(value); }
+            open-details-window => { root.open-details-window(); }
+            open-inspector-window => { root.open-inspector-window(); }
+            hide-inspector-window => { root.hide-inspector-window(); }
+            spawn-about-window => { root.spawn-about-window(); }
+            close-details-window => { root.close-details-window(); }
+            close-all-demo-windows => { root.close-all-demo-windows(); }
+        }
+        if current-page == 6 : CrossPageDataPage {
+            learner-name: root.learner-name;
+            cohort-name: root.cohort-name;
+            theme-name: root.theme-name;
+            shared-status: root.shared-status;
+            shared-note-text: root.shared-note-text;
+            shared-note-status: root.shared-note-status;
+            shared-progress-value: root.shared-progress-value;
+            shared-progress-label: root.shared-progress-label;
+            dashboard-preview-text: root.dashboard-preview-text;
+            editor-hint: root.editor-hint;
+            sync-notes: root.sync-notes;
+            update-note(value) => { root.update-shared-note(value); }
+            adjust-progress(delta) => { root.adjust-shared-progress(delta); }
+            reset-demo => { root.reset-cross-page-demo(); }
         }
     }
 }

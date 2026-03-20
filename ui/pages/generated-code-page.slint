@@ -1,6 +1,7 @@
-// This page points learners toward Slint's generated-code flow.
-// The content is intentionally declarative so it contrasts with build.rs and `include_modules!()`.
-
+// Generated-code lesson: this small component highlights the "build.rs + include_modules!()"
+// workflow without extra interaction details.
+// Watch for: Rust passing a plain string property into a reusable Slint component.
+// Try changing this: rename the exported component and follow the resulting generated Rust API.
 export component GeneratedCodePage inherits Rectangle {
     in property <string> summary;
 

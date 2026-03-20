@@ -1,5 +1,11 @@
 import { Button, ScrollView } from "std-widgets.slint";
 
+// Dashboard lesson: this page demonstrates a menu-bar-like shell using booleans plus conditional
+// popup panels rather than platform-native menus.
+// Watch for: callback routing through `trigger-action`, local menu-open state, and shared progress
+// controls that prove multiple pages can update the same Rust-owned data.
+// Try changing this: add another menu item and wire it through `src/dashboard.rs`.
+
 component DemoMenuButton inherits Rectangle {
     in property <string> label;
     in property <bool> selected;

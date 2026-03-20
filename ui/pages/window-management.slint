@@ -1,5 +1,11 @@
 import { Button, LineEdit, ScrollView } from "std-widgets.slint";
 
+// Window-management lesson: this page demonstrates three ownership patterns—reuse one window,
+// hide/show one window, and spawn many independent windows.
+// Watch for: callbacks that ask Rust to prepare payload data, show child windows, and react to
+// child-window events.
+// Try changing this: update the draft text, then compare how each child window receives it.
+
 export component WindowManagementPage inherits Rectangle {
     in property <string> draft-text;
     in property <string> details-status;
