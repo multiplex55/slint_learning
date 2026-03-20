@@ -1,10 +1,48 @@
-import { ScrollView } from "std-widgets.slint";
+import { Button, ScrollView } from "std-widgets.slint";
+import { DemoListRowData } from "demo-data.slint";
 
-// Repeated-content lesson: this page demonstrates a scrollable stack of cards rendered from a
-// list literal using Slint's `for` syntax.
-// Watch for: the repeated model, the `index` variable, and style changes derived from data.
-// Try changing this: add more lessons or derive a different border color from `index`.
+component SelectableListRow inherits Rectangle {
+    in property <string> title;
+    in property <string> detail;
+    in property <string> badge;
+    in property <string> status;
+    in property <bool> selected;
+    callback clicked;
+
+    min-height: 94px;
+    border-radius: 12px;
+    border-width: 1px;
+    border-color: selected ? #2563eb : #d9e2ec;
+    background: selected ? #eff6ff : #ffffff;
+
+    TouchArea { clicked => { root.clicked(); } mouse-cursor: pointer; }
+
+    VerticalLayout {
+        padding: 12px;
+        spacing: 6px;
+        HorizontalLayout {
+            spacing: 8px;
+            Text { text: title; font-size: 17px; font-weight: 800; color: #102a43; }
+            Rectangle {
+                min-width: 108px;
+                height: 24px;
+                border-radius: 999px;
+                background: selected ? #bfdbfe : #e2e8f0;
+                Text { text: badge; color: #1e3a8a; horizontal-alignment: center; vertical-alignment: center; }
+            }
+        }
+        Text { text: detail; wrap: word-wrap; color: #475569; }
+        Text { text: status; wrap: word-wrap; color: selected ? #1d4ed8 : #64748b; }
+    }
+}
+
 export component ListsAndModelsPage inherits Rectangle {
+    in property <[DemoListRowData]> rows;
+    in property <int> selected-index;
+    in property <string> summary;
+    callback select-item(int);
+    callback refresh-model();
+
     background: #ffffff;
     border-radius: 16px;
 
@@ -16,51 +54,61 @@ export component ListsAndModelsPage inherits Rectangle {
             padding: 18px;
             spacing: 16px;
 
-            Text { text: "This page uses repeated elements and a scroll view to preview how list-based UIs can scale to real data models later."; wrap: word-wrap; color: #52606d; }
-
             Rectangle {
-                background: #f8fafc;
+                background: #eff6ff;
                 border-radius: 14px;
                 border-width: 1px;
-                border-color: #d9e2ec;
+                border-color: #bfdbfe;
                 VerticalLayout {
                     padding: 16px;
-                    spacing: 12px;
-                    Text { text: "Repeated lesson cards"; font-size: 20px; font-weight: 800; color: #102a43; }
-                    // Take note: this static array stands in for a future Rust model. The syntax is
-                    // the same idea learners will use later with dynamic data.
-                    for lesson[index] in [
-                        "Bind repeated content to a list model.",
-                        "Wrap long collections in a scroll view.",
-                        "Use cards when each item needs explanatory text.",
-                        "Show indexes when teaching ordering and identity.",
-                        "Separate metadata from visual layout."
-                    ] : Rectangle {
-                        background: Math.mod(index, 2) == 0 ? #eff6ff : #f0fdf4;
-                        border-radius: 12px;
-                        border-width: 1px;
-                        border-color: Math.mod(index, 2) == 0 ? #bfdbfe : #86efac;
-                        min-height: 64px;
-                        HorizontalLayout {
-                            padding: 12px;
-                            spacing: 10px;
-                            Rectangle { min-width: 28px; height: 28px; background: white; border-radius: 999px; Text { text: (index + 1); horizontal-alignment: center; vertical-alignment: center; color: #334e68; } }
-                            Text { text: lesson; wrap: word-wrap; color: #334e68; }
-                        }
+                    spacing: 10px;
+                    Text { text: "Rust-backed repeated data"; font-size: 22px; font-weight: 800; color: #1d4ed8; }
+                    Text { text: "This page uses a Rust-prepared model for repeated rows, keeps selection state in one place, and refreshes item status text without rewriting the whole page structure."; wrap: word-wrap; color: #1e3a8a; }
+                    Text { text: summary; wrap: word-wrap; color: #1e40af; }
+                    HorizontalLayout {
+                        spacing: 10px;
+                        Button { text: "Refresh Rust model notes"; clicked => { root.refresh-model(); } }
+                        Text { text: "Selected index: " + (selected-index + 1); color: #1e40af; }
                     }
                 }
             }
 
-            Rectangle {
-                background: #faf5ff;
-                border-radius: 14px;
-                border-width: 1px;
-                border-color: #d8b4fe;
-                VerticalLayout {
-                    padding: 16px;
-                    spacing: 12px;
-                    Text { text: "Why this matters"; font-size: 20px; font-weight: 800; color: #6b21a8; }
-                    Text { text: "These repeated cards are still static text today, but they mimic the shape of data-driven UIs you can later populate from Rust models."; wrap: word-wrap; color: #7e22ce; }
+            for row[index] in rows : SelectableListRow {
+                title: row.title;
+                detail: row.detail;
+                badge: row.badge;
+                status: row.status;
+                selected: row.selected;
+                clicked => { root.select-item(index); }
+            }
+
+            HorizontalLayout {
+                spacing: 14px;
+                Rectangle {
+                    background: #f0fdf4;
+                    border-radius: 14px;
+                    border-width: 1px;
+                    border-color: #86efac;
+                    min-width: 360px;
+                    VerticalLayout {
+                        padding: 16px;
+                        spacing: 8px;
+                        Text { text: "Recommended pattern"; font-size: 20px; font-weight: 800; color: #15803d; }
+                        Text { text: "Prepare row data in Rust helpers, then let Slint repeat the visual component. This keeps selection and derived status text testable outside the runtime."; wrap: word-wrap; color: #166534; }
+                    }
+                }
+                Rectangle {
+                    background: #fff7ed;
+                    border-radius: 14px;
+                    border-width: 1px;
+                    border-color: #fdba74;
+                    min-width: 360px;
+                    VerticalLayout {
+                        padding: 16px;
+                        spacing: 8px;
+                        Text { text: "Less-ideal comparison"; font-size: 20px; font-weight: 800; color: #c2410c; }
+                        Text { text: "Copying one-off row markup for every data variant can work in tiny demos, but it scales poorly once selection, badges, and status messages all need to stay in sync."; wrap: word-wrap; color: #9a3412; }
+                    }
                 }
             }
         }

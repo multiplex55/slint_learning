@@ -10,8 +10,12 @@
 use std::cell::RefCell;
 use std::rc::Rc;
 
-use slint::ComponentHandle;
+use slint::{ComponentHandle, ModelRc, VecModel};
 
+use crate::advanced_demos::{
+    component_categories, default_theme_choices, visible_component_count, COMPONENT_REGISTRY,
+    PERFORMANCE_NOTES,
+};
 use crate::dashboard::{dispatch_dashboard_action, DashboardCommand};
 use crate::models::SharedLearningState;
 use crate::navigation::{page_category, page_description, page_title, PageId};
@@ -67,6 +71,75 @@ pub fn run_desktop_learning_app() -> Result<(), slint::PlatformError> {
                 }
                 apply_state_to_ui(&window, &state);
             }
+        }
+    });
+
+    let weak_window = app_window.as_weak();
+    let state_for_list_selection = Rc::clone(&shared_state);
+    app_window.on_select_list_demo_item(move |index| {
+        if let Some(window) = weak_window.upgrade() {
+            let mut state = state_for_list_selection.borrow_mut();
+            state.advanced_demos.select_list_index(index);
+            state.last_dashboard_action = format!(
+                "List demo selected row {} from the Rust-backed model.",
+                index + 1
+            );
+            apply_state_to_ui(&window, &state);
+        }
+    });
+
+    let weak_window = app_window.as_weak();
+    let state_for_list_refresh = Rc::clone(&shared_state);
+    app_window.on_refresh_list_demo(move || {
+        if let Some(window) = weak_window.upgrade() {
+            let mut state = state_for_list_refresh.borrow_mut();
+            state.advanced_demos.refresh_lessons();
+            state.last_dashboard_action =
+                "Rust refreshed the list/model teaching data without changing the page structure."
+                    .to_string();
+            apply_state_to_ui(&window, &state);
+        }
+    });
+
+    let weak_window = app_window.as_weak();
+    let state_for_theme_selection = Rc::clone(&shared_state);
+    app_window.on_select_theme_demo(move |theme_id| {
+        if let Some(window) = weak_window.upgrade() {
+            let mut state = state_for_theme_selection.borrow_mut();
+            state.advanced_demos.select_theme(theme_id.as_str());
+            let selected = state.advanced_demos.selected_theme();
+            state.current_theme = selected.label.to_string();
+            state.last_dashboard_action = format!(
+                "Theme demo switched to {} using Rust-owned selection state.",
+                selected.label
+            );
+            apply_state_to_ui(&window, &state);
+        }
+    });
+
+    let weak_window = app_window.as_weak();
+    let state_for_playground_details = Rc::clone(&shared_state);
+    app_window.on_toggle_playground_details(move || {
+        if let Some(window) = weak_window.upgrade() {
+            let mut state = state_for_playground_details.borrow_mut();
+            state.advanced_demos.toggle_playground_details();
+            state.last_dashboard_action =
+                "Playground toggled conditional visibility for the advanced teaching note."
+                    .to_string();
+            apply_state_to_ui(&window, &state);
+        }
+    });
+
+    let weak_window = app_window.as_weak();
+    let state_for_playground_loading = Rc::clone(&shared_state);
+    app_window.on_toggle_playground_loading(move || {
+        if let Some(window) = weak_window.upgrade() {
+            let mut state = state_for_playground_loading.borrow_mut();
+            state.advanced_demos.toggle_playground_loading();
+            state.last_dashboard_action =
+                "Playground toggled the mock loading indicator from Rust-owned demo state."
+                    .to_string();
+            apply_state_to_ui(&window, &state);
         }
     });
 
@@ -432,6 +505,49 @@ fn apply_state_to_ui(app_window: &AppWindow, state: &SharedLearningState) {
     let current_page = state.navigation.current_page;
     let cross_page = state.cross_page_view_model();
     let window_demo = state.window_management_view_model();
+    let advanced = &state.advanced_demos;
+    let selected_theme = advanced.selected_theme();
+
+    let list_rows = advanced
+        .lesson_rows()
+        .into_iter()
+        .map(|row| crate::DemoListRowData {
+            title: row.title.into(),
+            detail: row.detail.into(),
+            badge: row.badge.into(),
+            status: row.status.into(),
+            selected: row.selected,
+        })
+        .collect::<Vec<_>>();
+    let theme_choices = default_theme_choices()
+        .into_iter()
+        .map(|choice| crate::ThemeOptionData {
+            id: choice.id.into(),
+            label: choice.label.into(),
+            summary: choice.summary.into(),
+            accent_hex: choice.accent_hex.into(),
+            selected: choice.id == selected_theme.id,
+        })
+        .collect::<Vec<_>>();
+    let performance_patterns = PERFORMANCE_NOTES
+        .iter()
+        .map(|note| crate::PatternNoteData {
+            title: note.title.into(),
+            category: note.category.into(),
+            recommendation: note.recommendation.into(),
+            less_ideal: note.less_ideal.into(),
+        })
+        .collect::<Vec<_>>();
+    let component_registry = COMPONENT_REGISTRY
+        .iter()
+        .map(|meta| crate::ComponentMetaData {
+            id: meta.id.into(),
+            title: meta.title.into(),
+            category: meta.category.into(),
+            default_visible: meta.default_visible,
+            recommended: meta.recommended,
+        })
+        .collect::<Vec<_>>();
 
     // Take note: this function is the Rust-to-Slint publish step. The controller computes small,
     // display-ready view models and then copies those values into generated component properties.
@@ -462,4 +578,19 @@ fn apply_state_to_ui(app_window: &AppWindow, state: &SharedLearningState) {
     app_window.set_window_demo_lifecycle_status(window_demo.lifecycle_status.into());
     app_window.set_window_demo_instructional_text(window_demo.instructional_text.into());
     app_window.set_window_demo_prepared_preview(window_demo.prepared_preview.into());
+    app_window.set_list_demo_rows(ModelRc::new(VecModel::from(list_rows)));
+    app_window.set_selected_list_demo_index(advanced.selected_list_index as i32);
+    app_window.set_list_demo_summary(format!("{} rows prepared from Rust helpers. Focused row updates after each refresh without changing the repeated Slint layout.", advanced.lesson_rows().len()).into());
+    app_window.set_theme_demo_options(ModelRc::new(VecModel::from(theme_choices)));
+    app_window.set_theme_demo_selected_id(selected_theme.id.into());
+    app_window.set_theme_demo_selected_label(selected_theme.label.into());
+    app_window.set_theme_demo_selected_summary(selected_theme.summary.into());
+    app_window.set_theme_demo_accent_hex(selected_theme.accent_hex.into());
+    app_window.set_performance_pattern_notes(ModelRc::new(VecModel::from(performance_patterns)));
+    app_window.set_component_registry(ModelRc::new(VecModel::from(component_registry)));
+    app_window.set_component_registry_summary(format!("{} reusable component metadata entries across {} categories. These are teaching notes, not benchmark claims.", COMPONENT_REGISTRY.len(), component_categories(&COMPONENT_REGISTRY).len()).into());
+    app_window.set_visible_component_count(visible_component_count(&COMPONENT_REGISTRY) as i32);
+    app_window.set_playground_show_details(advanced.playground_show_details);
+    app_window.set_playground_loading(advanced.playground_loading);
+    app_window.set_playground_loading_label(advanced.loading_label().into());
 }

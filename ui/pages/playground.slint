@@ -1,0 +1,138 @@
+import { Button, ScrollView } from "std-widgets.slint";
+
+component TryThisCard inherits Rectangle {
+    in property <string> title;
+    in property <string> body;
+    border-radius: 14px;
+    border-width: 1px;
+    border-color: #d9e2ec;
+    background: #ffffff;
+    VerticalLayout {
+        padding: 16px;
+        spacing: 8px;
+        Text { text: title; font-size: 18px; font-weight: 800; color: #102a43; }
+        Text { text: body; wrap: word-wrap; color: #475569; }
+    }
+}
+
+export component PlaygroundPage inherits Rectangle {
+    in property <bool> rust-show-details;
+    in property <bool> rust-loading;
+    in property <string> loading-label;
+    callback toggle-details();
+    callback toggle-loading();
+
+    property <int> imperative-count: 0;
+    property <bool> pulse-on: false;
+
+    background: #ffffff;
+    border-radius: 16px;
+
+    ScrollView {
+        viewport-height: 560px;
+        viewport-width: 920px;
+        VerticalLayout {
+            padding: 18px;
+            spacing: 16px;
+
+            TryThisCard {
+                title: "Property binding vs imperative updates";
+                body: "The green bar below binds its width to `imperative-count`, while the orange label only changes when a button updates the property. Prefer declarative bindings for derived values when possible.";
+            }
+
+            Rectangle {
+                background: #f0fdf4;
+                border-radius: 14px;
+                border-width: 1px;
+                border-color: #86efac;
+                VerticalLayout {
+                    padding: 16px;
+                    spacing: 10px;
+                    Text { text: "Imperative count: " + imperative-count; font-weight: 800; color: #166534; }
+                    HorizontalLayout {
+                        spacing: 10px;
+                        Button { text: "+1 imperatively"; clicked => { root.imperative-count += 1; } }
+                        Button { text: "Reset"; clicked => { root.imperative-count = 0; } }
+                    }
+                    Rectangle {
+                        height: 18px;
+                        background: #dcfce7;
+                        border-radius: 999px;
+                        Rectangle {
+                            width: parent.width * root.imperative-count / 10;
+                            height: parent.height;
+                            background: #22c55e;
+                            border-radius: 999px;
+                            animate width { duration: 220ms; }
+                        }
+                    }
+                }
+            }
+
+            HorizontalLayout {
+                spacing: 14px;
+                Rectangle {
+                    background: #eff6ff;
+                    border-radius: 14px;
+                    border-width: 1px;
+                    border-color: #bfdbfe;
+                    min-width: 360px;
+                    VerticalLayout {
+                        padding: 16px;
+                        spacing: 10px;
+                        Text { text: "Conditional visibility"; font-size: 20px; font-weight: 800; color: #1d4ed8; }
+                        Button { text: rust-show-details ? "Hide teaching note" : "Show teaching note"; clicked => { root.toggle-details(); } }
+                        if rust-show-details : Rectangle {
+                            background: #dbeafe;
+                            border-radius: 12px;
+                            min-height: 72px;
+                            animate opacity { duration: 180ms; }
+                            Text { text: "Rust owns this boolean so the shell could coordinate visibility across multiple pages if needed."; wrap: word-wrap; color: #1e3a8a; }
+                        }
+                    }
+                }
+                Rectangle {
+                    background: #fff7ed;
+                    border-radius: 14px;
+                    border-width: 1px;
+                    border-color: #fdba74;
+                    min-width: 360px;
+                    VerticalLayout {
+                        padding: 16px;
+                        spacing: 10px;
+                        Text { text: "Mock loading indicator"; font-size: 20px; font-weight: 800; color: #c2410c; }
+                        Button { text: rust-loading ? "Finish mock load" : "Start mock load"; clicked => { root.toggle-loading(); } }
+                        Text { text: loading-label; wrap: word-wrap; color: #9a3412; }
+                        if rust-loading : Rectangle {
+                            height: 14px;
+                            border-radius: 999px;
+                            background: #fed7aa;
+                            Rectangle {
+                                width: parent.width / 2;
+                                height: parent.height;
+                                background: #f97316;
+                                border-radius: 999px;
+                                x: root.pulse-on ? parent.width / 2 : 0px;
+                                animate x { duration: 550ms; }
+                            }
+                        }
+                    }
+                }
+            }
+
+            HorizontalLayout {
+                spacing: 14px;
+                TryThisCard {
+                    title: "Reusable custom component";
+                    body: "`TryThisCard` keeps spacing and typography consistent across the page, which is usually easier to maintain than repeating ad-hoc rectangles everywhere.";
+                }
+                TryThisCard {
+                    title: "Less-ideal comparison";
+                    body: "Imperatively updating many unrelated labels can work for quick experiments, but it becomes harder to trace than a few stable bindings and shared callbacks.";
+                }
+            }
+        }
+    }
+
+    init => { root.pulse-on = true; }
+}

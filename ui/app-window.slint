@@ -1,11 +1,4 @@
-// Root shell lesson: this component demonstrates a classic desktop layout pattern with
-// a fixed navigation rail on the left and a content area on the right.
-// Watch for: top-level `in` properties that Rust updates, plus callbacks that send user actions
-// from Slint back into `src/app.rs`.
-// Next experiment: add another shell-level property/callback pair and trace it through Rust.
-import {
-    ScrollView,
-} from "std-widgets.slint";
+import { ScrollView } from "std-widgets.slint";
 import { DashboardPage } from "pages/dashboard.slint";
 import { LayoutsPage } from "pages/layouts.slint";
 import { ButtonsAndInputsPage } from "pages/buttons-and-inputs.slint";
@@ -13,57 +6,40 @@ import { ListsAndModelsPage } from "pages/lists-and-models.slint";
 import { StylingAndThemesPage } from "pages/styling-and-themes.slint";
 import { WindowManagementPage } from "pages/window-management.slint";
 import { CrossPageDataPage } from "pages/cross-page-data.slint";
+import { PerformanceAndBestPracticesPage } from "pages/performance-and-best-practices.slint";
+import { PlaygroundPage } from "pages/playground.slint";
 
 export { DetailsWindow } from "windows/details-window.slint";
 export { InspectorWindow } from "windows/inspector-window.slint";
 export { AboutWindow } from "windows/about-window.slint";
+
+import { DemoListRowData, ThemeOptionData, PatternNoteData, ComponentMetaData } from "pages/demo-data.slint";
 
 component NavigationButton inherits Rectangle {
     in property <string> label;
     in property <string> category;
     in property <bool> selected;
     callback clicked;
-
     min-height: 68px;
     border-radius: 12px;
     background: selected ? #dbeafe : #ffffff;
     border-width: 1px;
     border-color: selected ? #60a5fa : #d7dde5;
-
-    TouchArea {
-        // Take note: this tiny callback wrapper lets the visual button stay reusable while the
-        // parent decides what "clicked" means for navigation.
-        clicked => { root.clicked(); }
-        mouse-cursor: pointer;
-    }
-
+    TouchArea { clicked => { root.clicked(); } mouse-cursor: pointer; }
     VerticalLayout {
         padding: 12px;
         spacing: 4px;
-
-        Text {
-            text: label;
-            font-size: 16px;
-            font-weight: 700;
-            color: #102a43;
-        }
-
-        Text {
-            text: category;
-            color: #52606d;
-            font-size: 12px;
-        }
+        Text { text: label; font-size: 16px; font-weight: 700; color: #102a43; }
+        Text { text: category; color: #52606d; font-size: 12px; }
     }
 }
 
 export component AppWindow inherits Window {
     width: 1320px;
-    height: 860px;
+    height: 900px;
     title: "Slint Learning Workspace";
     background: #edf2f7;
 
-    // Take note: these properties form the Rust-to-Slint data surface. `src/app.rs` recomputes
-    // them after each meaningful action so pages can stay declarative.
     in-out property <int> current-page: 0;
     in property <string> page-title: "Dashboard";
     in property <string> page-description: "";
@@ -89,7 +65,23 @@ export component AppWindow inherits Window {
     in property <string> window-demo-lifecycle-status: "";
     in property <string> window-demo-instructional-text: "";
     in property <string> window-demo-prepared-preview: "";
+    in property <[DemoListRowData]> list-demo-rows;
+    in property <int> selected-list-demo-index: 0;
+    in property <string> list-demo-summary: "";
+    in property <[ThemeOptionData]> theme-demo-options;
+    in property <string> theme-demo-selected-id: "";
+    in property <string> theme-demo-selected-label: "";
+    in property <string> theme-demo-selected-summary: "";
+    in property <string> theme-demo-accent-hex: "#2563eb";
+    in property <[PatternNoteData]> performance-pattern-notes;
+    in property <[ComponentMetaData]> component-registry;
+    in property <string> component-registry-summary: "";
+    in property <int> visible-component-count: 0;
+    in property <bool> playground-show-details: true;
+    in property <bool> playground-loading: false;
+    in property <string> playground-loading-label: "";
     in property <int> total-pages: 0;
+
     callback request-page(int);
     callback dashboard-action(string);
     callback update-shared-note(string);
@@ -102,6 +94,11 @@ export component AppWindow inherits Window {
     callback spawn-about-window();
     callback close-details-window();
     callback close-all-demo-windows();
+    callback select-list-demo-item(int);
+    callback refresh-list-demo();
+    callback select-theme-demo(string);
+    callback toggle-playground-details();
+    callback toggle-playground-loading();
 
     VerticalLayout {
         padding: 18px;
@@ -113,51 +110,25 @@ export component AppWindow inherits Window {
             border-width: 1px;
             border-color: #d9e2ec;
             min-height: 112px;
-
             HorizontalLayout {
                 padding: 18px;
                 spacing: 18px;
-
                 VerticalLayout {
                     spacing: 6px;
-
-                    Text {
-                        text: "Slint Demo Shell";
-                        font-size: 30px;
-                        font-weight: 800;
-                        color: #102a43;
-                    }
-
-                    Text {
-                        text: "An intentionally instructional desktop shell that hosts focused demo pages and keeps the navigation model testable in Rust.";
-                        wrap: word-wrap;
-                        color: #486581;
-                    }
+                    Text { text: "Slint Demo Shell"; font-size: 30px; font-weight: 800; color: #102a43; }
+                    Text { text: "An intentionally instructional desktop shell that hosts focused demo pages and keeps the navigation model testable in Rust."; wrap: word-wrap; color: #486581; }
                 }
-
                 Rectangle {
                     min-width: 320px;
                     background: #f8fafc;
                     border-radius: 14px;
                     border-width: 1px;
                     border-color: #d9e2ec;
-
                     VerticalLayout {
                         padding: 14px;
                         spacing: 4px;
-
-                        Text {
-                            text: "Shared teaching context";
-                            font-size: 14px;
-                            font-weight: 700;
-                            color: #334e68;
-                        }
-
-                        Text {
-                            text: shared-status;
-                            wrap: word-wrap;
-                            color: #52606d;
-                        }
+                        Text { text: "Shared teaching context"; font-size: 14px; font-weight: 700; color: #334e68; }
+                        Text { text: shared-status; wrap: word-wrap; color: #52606d; }
                     }
                 }
             }
@@ -165,82 +136,31 @@ export component AppWindow inherits Window {
 
         HorizontalLayout {
             spacing: 14px;
-
             Rectangle {
                 min-width: 280px;
                 background: #f8fbff;
                 border-radius: 18px;
                 border-width: 1px;
                 border-color: #d9e2ec;
-
                 VerticalLayout {
                     padding: 16px;
                     spacing: 12px;
-
-                    Text {
-                        text: "Navigation";
-                        font-size: 24px;
-                        font-weight: 800;
-                        color: #102a43;
-                    }
-
-                    Text {
-                        text: "Each entry maps to a Rust `PageId` so ordering, labels, and grouping stay easy to test.";
-                        wrap: word-wrap;
-                        color: #52606d;
-                    }
-
+                    Text { text: "Navigation"; font-size: 24px; font-weight: 800; color: #102a43; }
+                    Text { text: "Each entry maps to a Rust `PageId` so ordering, labels, and grouping stay easy to test."; wrap: word-wrap; color: #52606d; }
                     ScrollView {
                         viewport-width: 240px;
-                        viewport-height: 560px;
-
+                        viewport-height: 620px;
                         VerticalLayout {
                             spacing: 10px;
-
-                            // Try changing this: swap the order of two buttons here without
-                            // updating `src/navigation.rs` to see why the index mapping matters.
-                            NavigationButton {
-                                label: "Dashboard";
-                                category: "Getting Started";
-                                selected: current-page == 0;
-                                clicked => { root.request-page(0); }
-                            }
-                            NavigationButton {
-                                label: "Layouts";
-                                category: "Layout Patterns";
-                                selected: current-page == 1;
-                                clicked => { root.request-page(1); }
-                            }
-                            NavigationButton {
-                                label: "Buttons and Inputs";
-                                category: "Interactive Widgets";
-                                selected: current-page == 2;
-                                clicked => { root.request-page(2); }
-                            }
-                            NavigationButton {
-                                label: "Lists and Models";
-                                category: "Interactive Widgets";
-                                selected: current-page == 3;
-                                clicked => { root.request-page(3); }
-                            }
-                            NavigationButton {
-                                label: "Styling and Themes";
-                                category: "Presentation";
-                                selected: current-page == 4;
-                                clicked => { root.request-page(4); }
-                            }
-                            NavigationButton {
-                                label: "Window Management";
-                                category: "Application Shell";
-                                selected: current-page == 5;
-                                clicked => { root.request-page(5); }
-                            }
-                            NavigationButton {
-                                label: "Cross-page Data";
-                                category: "Application Shell";
-                                selected: current-page == 6;
-                                clicked => { root.request-page(6); }
-                            }
+                            NavigationButton { label: "Dashboard"; category: "Getting Started"; selected: current-page == 0; clicked => { root.request-page(0); } }
+                            NavigationButton { label: "Layouts"; category: "Layout Patterns"; selected: current-page == 1; clicked => { root.request-page(1); } }
+                            NavigationButton { label: "Buttons and Inputs"; category: "Interactive Widgets"; selected: current-page == 2; clicked => { root.request-page(2); } }
+                            NavigationButton { label: "Lists and Models"; category: "Interactive Widgets"; selected: current-page == 3; clicked => { root.request-page(3); } }
+                            NavigationButton { label: "Styling and Themes"; category: "Presentation"; selected: current-page == 4; clicked => { root.request-page(4); } }
+                            NavigationButton { label: "Window Management"; category: "Application Shell"; selected: current-page == 5; clicked => { root.request-page(5); } }
+                            NavigationButton { label: "Cross-page Data"; category: "Application Shell"; selected: current-page == 6; clicked => { root.request-page(6); } }
+                            NavigationButton { label: "Performance and Best Practices"; category: "Architecture"; selected: current-page == 7; clicked => { root.request-page(7); } }
+                            NavigationButton { label: "Playground"; category: "Hands-on Lab"; selected: current-page == 8; clicked => { root.request-page(8); } }
                         }
                     }
                 }
@@ -254,7 +174,6 @@ export component AppWindow inherits Window {
                 HorizontalLayout {
                     padding: 18px;
                     spacing: 18px;
-
                     VerticalLayout {
                         spacing: 8px;
                         Text { text: page-category; font-size: 14px; font-weight: 700; color: #3b82f6; }
@@ -262,7 +181,6 @@ export component AppWindow inherits Window {
                         Text { text: page-description; wrap: word-wrap; color: #52606d; }
                         Text { text: page-notes; wrap: word-wrap; color: #486581; }
                     }
-
                     Rectangle {
                         min-width: 220px;
                         background: #f8fafc;
@@ -281,8 +199,6 @@ export component AppWindow inherits Window {
             }
         }
 
-        // Conditional page switching pattern: the root window owns the current-page index, and each
-        // page receives only the subset of properties/callbacks it needs for its lesson.
         if current-page == 0 : DashboardPage {
             learner-name: root.learner-name;
             cohort-name: root.cohort-name;
@@ -301,8 +217,21 @@ export component AppWindow inherits Window {
         }
         if current-page == 1 : LayoutsPage {}
         if current-page == 2 : ButtonsAndInputsPage {}
-        if current-page == 3 : ListsAndModelsPage {}
-        if current-page == 4 : StylingAndThemesPage { theme-name: root.theme-name; }
+        if current-page == 3 : ListsAndModelsPage {
+            rows: root.list-demo-rows;
+            selected-index: root.selected-list-demo-index;
+            summary: root.list-demo-summary;
+            select-item(index) => { root.select-list-demo-item(index); }
+            refresh-model => { root.refresh-list-demo(); }
+        }
+        if current-page == 4 : StylingAndThemesPage {
+            theme-options: root.theme-demo-options;
+            selected-theme-id: root.theme-demo-selected-id;
+            selected-theme-label: root.theme-demo-selected-label;
+            selected-theme-summary: root.theme-demo-selected-summary;
+            accent-hex: root.theme-demo-accent-hex;
+            select-theme(theme-id) => { root.select-theme-demo(theme-id); }
+        }
         if current-page == 5 : WindowManagementPage {
             draft-text: root.window-demo-text;
             details-status: root.window-demo-details-status;
@@ -335,6 +264,19 @@ export component AppWindow inherits Window {
             update-note(value) => { root.update-shared-note(value); }
             adjust-progress(delta) => { root.adjust-shared-progress(delta); }
             reset-demo => { root.reset-cross-page-demo(); }
+        }
+        if current-page == 7 : PerformanceAndBestPracticesPage {
+            pattern-notes: root.performance-pattern-notes;
+            component-registry: root.component-registry;
+            component-summary: root.component-registry-summary;
+            visible-component-count: root.visible-component-count;
+        }
+        if current-page == 8 : PlaygroundPage {
+            rust-show-details: root.playground-show-details;
+            rust-loading: root.playground-loading;
+            loading-label: root.playground-loading-label;
+            toggle-details => { root.toggle-playground-details(); }
+            toggle-loading => { root.toggle-playground-loading(); }
         }
     }
 }
