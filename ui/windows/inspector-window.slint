@@ -1,0 +1,29 @@
+import { Button } from "std-widgets.slint";
+
+export component InspectorWindow inherits Window {
+    in property <string> selected-text;
+    in property <string> helper-text;
+    callback ping-parent(string);
+    callback request-hide();
+
+    width: 400px;
+    height: 250px;
+    title: "Inspector Window";
+    background: #f0fdf4;
+
+    VerticalLayout {
+        padding: 18px;
+        spacing: 12px;
+
+        Text { text: "Inspector window"; font-size: 24px; font-weight: 800; color: #166534; }
+        Text { text: "This child window is modeless and intentionally hidden instead of destroyed so Rust can reveal the same handle again."; wrap: word-wrap; color: #166534; }
+        Text { text: "Current inspected value:"; font-weight: 700; color: #166534; }
+        Text { text: selected-text; wrap: word-wrap; color: #14532d; }
+        Text { text: helper-text; wrap: word-wrap; color: #15803d; }
+        HorizontalLayout {
+            spacing: 10px;
+            Button { text: "Ping parent"; clicked => { root.ping-parent("Inspector says the shared selection looks correct."); } }
+            Button { text: "Hide window"; clicked => { root.request-hide(); } }
+        }
+    }
+}

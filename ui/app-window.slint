@@ -9,6 +9,10 @@ import { StylingAndThemesPage } from "pages/styling-and-themes.slint";
 import { WindowManagementPage } from "pages/window-management.slint";
 import { CrossPageDataPage } from "pages/cross-page-data.slint";
 
+export { DetailsWindow } from "windows/details-window.slint";
+export { InspectorWindow } from "windows/inspector-window.slint";
+export { AboutWindow } from "windows/about-window.slint";
+
 component NavigationButton inherits Rectangle {
     in property <string> label;
     in property <string> category;
@@ -68,12 +72,27 @@ export component AppWindow inherits Window {
     in property <string> dashboard-preview-text: "";
     in property <string> editor-hint: "";
     in property <string> sync-notes: "";
+    in property <string> window-demo-text: "";
+    in property <string> window-demo-details-status: "";
+    in property <string> window-demo-inspector-status: "";
+    in property <string> window-demo-about-status: "";
+    in property <string> window-demo-child-feedback: "";
+    in property <string> window-demo-lifecycle-status: "";
+    in property <string> window-demo-instructional-text: "";
+    in property <string> window-demo-prepared-preview: "";
     in property <int> total-pages: 0;
     callback request-page(int);
     callback dashboard-action(string);
     callback update-shared-note(string);
     callback adjust-shared-progress(int);
     callback reset-cross-page-demo();
+    callback update-window-demo-text(string);
+    callback open-details-window();
+    callback open-inspector-window();
+    callback hide-inspector-window();
+    callback spawn-about-window();
+    callback close-details-window();
+    callback close-all-demo-windows();
 
     VerticalLayout {
         padding: 18px;
@@ -282,7 +301,23 @@ export component AppWindow inherits Window {
                         if current-page == 2 : ButtonsAndInputsPage {}
                         if current-page == 3 : ListsAndModelsPage {}
                         if current-page == 4 : StylingAndThemesPage { theme-name: theme-name; }
-                        if current-page == 5 : WindowManagementPage {}
+                        if current-page == 5 : WindowManagementPage {
+                            draft-text: window-demo-text;
+                            details-status: window-demo-details-status;
+                            inspector-status: window-demo-inspector-status;
+                            about-status: window-demo-about-status;
+                            child-feedback: window-demo-child-feedback;
+                            lifecycle-status: window-demo-lifecycle-status;
+                            instructional-text: window-demo-instructional-text;
+                            prepared-preview: window-demo-prepared-preview;
+                            update-draft-text(value) => { root.update-window-demo-text(value); }
+                            open-details-window() => { root.open-details-window(); }
+                            open-inspector-window() => { root.open-inspector-window(); }
+                            hide-inspector-window() => { root.hide-inspector-window(); }
+                            spawn-about-window() => { root.spawn-about-window(); }
+                            close-details-window() => { root.close-details-window(); }
+                            close-all-demo-windows() => { root.close-all-demo-windows(); }
+                        }
                         if current-page == 6 : CrossPageDataPage {
                             learner-name: learner-name;
                             cohort-name: cohort-name;

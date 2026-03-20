@@ -89,8 +89,8 @@ impl PageId {
             Self::WindowManagement => PageMeta {
                 id: Self::WindowManagement,
                 title: "Window Management",
-                description: "Explain top-level shell concerns such as headers, status areas, and page-level workflow hints.",
-                notes: "Keep the examples conceptual so the page remains useful on every desktop backend.",
+                description: "Open, hide, reuse, and recreate multiple top-level windows while keeping a Rust controller testable.",
+                notes: "Compare modeless reused windows with recreated utility windows and discuss ownership of handles.",
                 category: "Application Shell",
             },
             Self::CrossPageData => PageMeta {

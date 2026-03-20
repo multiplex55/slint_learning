@@ -1,13 +1,14 @@
 //! Shared learning data sits outside the `.slint` files so later lessons can connect
 //! richer state without rewriting the teaching shell.
 //!
-//! This module now includes a dedicated cross-page example: Rust owns the shared
-//! application state, Slint pages emit callbacks when the learner edits values,
-//! and Rust pushes the canonical values back into UI properties for every page.
-//! That pattern keeps borrowing, validation, and reset behavior in one place.
+//! This module now includes dedicated examples for shared cross-page data and
+//! multi-window coordination. Rust owns the canonical state, Slint pages emit
+//! callbacks when the learner edits values or requests child-window actions,
+//! and Rust pushes the validated state back into UI properties.
 
 use crate::dashboard::default_recent_items;
 use crate::navigation::{page_title, NavigationState, PageId};
+use crate::window_management::{WindowManagementController, WindowManagementViewModel};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct CrossPageViewModel {
@@ -27,6 +28,7 @@ pub struct SharedLearningState {
     pub current_theme: String,
     pub navigation: NavigationState,
     pub last_dashboard_action: String,
+    pub window_demo: WindowManagementController,
     shared_note_text: String,
     shared_progress_value: i32,
 }
@@ -43,6 +45,7 @@ impl Default for SharedLearningState {
                 "Dashboard ready. Recent menu demos include {} and {}.",
                 recent_items[0].label, recent_items[1].label
             ),
+            window_demo: WindowManagementController::default(),
             shared_note_text: Self::default_note_text().to_string(),
             shared_progress_value: Self::default_progress_value(),
         }
@@ -90,7 +93,7 @@ impl SharedLearningState {
             PageId::ButtonsAndInputs => "Interact with the controls and discuss which values belong in Rust versus the UI layer.".to_string(),
             PageId::ListsAndModels => "Notice how repeated content and scrollable regions prepare the app for real data models.".to_string(),
             PageId::StylingAndThemes => format!("The current example theme is {}—use it to talk about visual hierarchy.", self.current_theme),
-            PageId::WindowManagement => "Relate the shell header, navigation, content area, and footer to overall window composition.".to_string(),
+            PageId::WindowManagement => "Compare reused, hidden, and recreated child windows while discussing Rust ownership of window handles.".to_string(),
             PageId::CrossPageData => format!("Edit the shared note or progress here, then watch the dashboard reflect the same Rust-owned values for {}.", self.cohort_name),
         }
     }
@@ -145,12 +148,17 @@ impl SharedLearningState {
             synchronization_notes: "Prefer direct property binding when a Slint-only value stays inside one component. Prefer callback-driven synchronization when Rust must validate input, share state across pages, or reset multiple widgets together. Rc<RefCell<_>> lets the shell share one owner-friendly state object across callbacks without fighting Rust lifetimes.".to_string(),
         }
     }
+
+    pub fn window_management_view_model(&self) -> WindowManagementViewModel {
+        self.window_demo.view_model()
+    }
 }
 
 #[cfg(test)]
 mod tests {
     use super::SharedLearningState;
     use crate::navigation::PageId;
+    use crate::window_management::WindowVisibility;
 
     #[test]
     fn shared_state_starts_with_instructional_defaults() {
@@ -168,6 +176,10 @@ mod tests {
         assert_eq!(
             state.shared_progress_value(),
             SharedLearningState::default_progress_value()
+        );
+        assert_eq!(
+            state.window_demo.details_visibility(),
+            WindowVisibility::Closed
         );
     }
 
