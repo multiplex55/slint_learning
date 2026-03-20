@@ -5,6 +5,7 @@ mod app;
 mod dashboard;
 mod models;
 mod navigation;
+mod window_management;
 
 slint::include_modules!();
 

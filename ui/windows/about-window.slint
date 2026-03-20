@@ -1,0 +1,24 @@
+import { Button } from "std-widgets.slint";
+
+export component AboutWindow inherits Window {
+    in property <string> selected-text;
+    in property <string> helper-text;
+    callback request-close();
+
+    width: 360px;
+    height: 220px;
+    title: "About Window";
+    background: #fffbeb;
+
+    VerticalLayout {
+        padding: 18px;
+        spacing: 12px;
+
+        Text { text: "About this multi-window demo"; font-size: 22px; font-weight: 800; color: #92400e; }
+        Text { text: "Each click on the main page creates another modeless About window so learners can compare creation-per-action with handle reuse."; wrap: word-wrap; color: #b45309; }
+        Text { text: "Latest text prepared by the main window:"; font-weight: 700; color: #92400e; }
+        Text { text: selected-text; wrap: word-wrap; color: #78350f; }
+        Text { text: helper-text; wrap: word-wrap; color: #b45309; }
+        Button { text: "Close about window"; clicked => { root.request-close(); } }
+    }
+}

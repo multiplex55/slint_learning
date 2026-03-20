@@ -1,5 +1,22 @@
-import { ScrollView } from "std-widgets.slint";
+import { Button, LineEdit, ScrollView } from "std-widgets.slint";
+
 export component WindowManagementPage inherits Rectangle {
+    in property <string> draft-text;
+    in property <string> details-status;
+    in property <string> inspector-status;
+    in property <string> about-status;
+    in property <string> child-feedback;
+    in property <string> lifecycle-status;
+    in property <string> instructional-text;
+    in property <string> prepared-preview;
+    callback update-draft-text(string);
+    callback open-details-window();
+    callback open-inspector-window();
+    callback hide-inspector-window();
+    callback spawn-about-window();
+    callback close-details-window();
+    callback close-all-demo-windows();
+
     background: #ffffff;
     border-radius: 16px;
 
@@ -11,43 +28,107 @@ export component WindowManagementPage inherits Rectangle {
             padding: 18px;
             spacing: 16px;
 
-            Text { text: "Use this page to discuss shell-level concerns such as top-level regions, status messages, and workflow framing rather than low-level widget details."; wrap: word-wrap; color: #52606d; }
+            Text {
+                text: instructional-text;
+                wrap: word-wrap;
+                color: #52606d;
+            }
+
+            Rectangle {
+                background: #eff6ff;
+                border-radius: 14px;
+                border-width: 1px;
+                border-color: #bfdbfe;
+
+                VerticalLayout {
+                    padding: 16px;
+                    spacing: 10px;
+
+                    Text { text: "1. Prepare data in the main window"; font-size: 22px; font-weight: 800; color: #1d4ed8; }
+                    Text { text: "Type a value here, then open a child window. Rust copies this text into the child before show/hide decisions are made."; wrap: word-wrap; color: #1e40af; }
+                    draft-entry := LineEdit {
+                        text: draft-text;
+                        accepted => { root.update-draft-text(draft-entry.text); }
+                    }
+                    HorizontalLayout {
+                        spacing: 10px;
+                        Button { text: "Apply text"; clicked => { root.update-draft-text(draft-entry.text); } }
+                        Text { text: prepared-preview; wrap: word-wrap; color: #1e3a8a; }
+                    }
+                }
+            }
+
+            HorizontalLayout {
+                spacing: 14px;
+
+                Rectangle {
+                    background: #f0fdf4;
+                    border-radius: 14px;
+                    border-width: 1px;
+                    border-color: #86efac;
+                    min-width: 280px;
+
+                    VerticalLayout {
+                        padding: 16px;
+                        spacing: 10px;
+                        Text { text: "2. Reuse a single Details window"; font-size: 20px; font-weight: 800; color: #15803d; }
+                        Text { text: "Behavior: modeless, visible/closed, and reused when you open it again."; wrap: word-wrap; color: #166534; }
+                        Button { text: "Open Details"; clicked => { root.open-details-window(); } }
+                        Button { text: "Close Details"; clicked => { root.close-details-window(); } }
+                        Text { text: details-status; wrap: word-wrap; color: #166534; }
+                    }
+                }
+
+                Rectangle {
+                    background: #fefce8;
+                    border-radius: 14px;
+                    border-width: 1px;
+                    border-color: #fde68a;
+                    min-width: 280px;
+
+                    VerticalLayout {
+                        padding: 16px;
+                        spacing: 10px;
+                        Text { text: "3. Hide and reveal the Inspector"; font-size: 20px; font-weight: 800; color: #a16207; }
+                        Text { text: "Behavior: modeless, hidden instead of destroyed, then shown again with the same Rust-owned handle."; wrap: word-wrap; color: #a16207; }
+                        Button { text: "Open Inspector"; clicked => { root.open-inspector-window(); } }
+                        Button { text: "Hide Inspector"; clicked => { root.hide-inspector-window(); } }
+                        Text { text: inspector-status; wrap: word-wrap; color: #854d0e; }
+                    }
+                }
+
+                Rectangle {
+                    background: #fff7ed;
+                    border-radius: 14px;
+                    border-width: 1px;
+                    border-color: #fdba74;
+                    min-width: 280px;
+
+                    VerticalLayout {
+                        padding: 16px;
+                        spacing: 10px;
+                        Text { text: "4. Create multiple About windows"; font-size: 20px; font-weight: 800; color: #c2410c; }
+                        Text { text: "Behavior: modeless, recreated per click, and useful for comparing against the reused windows above."; wrap: word-wrap; color: #c2410c; }
+                        Button { text: "Open Another About Window"; clicked => { root.spawn-about-window(); } }
+                        Button { text: "Close All Demo Windows"; clicked => { root.close-all-demo-windows(); } }
+                        Text { text: about-status; wrap: word-wrap; color: #9a3412; }
+                    }
+                }
+            }
 
             Rectangle {
                 background: #f8fafc;
                 border-radius: 14px;
                 border-width: 1px;
                 border-color: #d9e2ec;
-                VerticalLayout {
-                    padding: 16px;
-                    spacing: 12px;
-                    Text { text: "Window shell checklist"; font-size: 20px; font-weight: 800; color: #102a43; }
-                    for item in [
-                        "A header gives orientation and sets the learning goal.",
-                        "Navigation keeps page switching predictable.",
-                        "A central content area isolates the current demo.",
-                        "A footer can carry small teaching notes or status messages."
-                    ] : Rectangle {
-                        background: #ffffff;
-                        border-radius: 10px;
-                        border-width: 1px;
-                        border-color: #d9e2ec;
-                        min-height: 52px;
-                        Text { text: item; wrap: word-wrap; vertical-alignment: center; color: #334e68; x: 12px; width: parent.width - 24px; }
-                    }
-                }
-            }
 
-            Rectangle {
-                background: #ecfeff;
-                border-radius: 14px;
-                border-width: 1px;
-                border-color: #a5f3fc;
                 VerticalLayout {
                     padding: 16px;
-                    spacing: 10px;
-                    Text { text: "Why this page matters"; font-size: 20px; font-weight: 800; color: #155e75; }
-                    Text { text: "Learners often jump straight to widgets. This page reminds them that a GUI shell also teaches navigation, structure, and flow."; wrap: word-wrap; color: #0f766e; }
+                    spacing: 8px;
+                    Text { text: "Observe the event flow"; font-size: 20px; font-weight: 800; color: #334155; }
+                    Text { text: child-feedback; wrap: word-wrap; color: #475569; }
+                    Text { text: lifecycle-status; wrap: word-wrap; color: #475569; }
+                    Text { text: "Platform note: multiple top-level windows depend on the desktop backend. If a platform restricts extra windows, this page still documents the intended reuse/create patterns and the Rust controller tests continue to validate the state machine."; wrap: word-wrap; color: #64748b; }
                 }
             }
         }

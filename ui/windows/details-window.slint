@@ -1,0 +1,41 @@
+import { Button, ScrollView } from "std-widgets.slint";
+
+export component DetailsWindow inherits Window {
+    in property <string> selected-text;
+    in property <string> helper-text;
+    callback acknowledge-selection(string);
+    callback request-close();
+
+    width: 420px;
+    height: 300px;
+    title: "Details Window";
+    background: #eff6ff;
+
+    ScrollView {
+        viewport-width: 400px;
+        viewport-height: 280px;
+
+        VerticalLayout {
+            padding: 18px;
+            spacing: 12px;
+
+            Text { text: "Details window"; font-size: 24px; font-weight: 800; color: #1e3a8a; }
+            Text { text: "This child window is modeless and reused. Open it twice from the main page to see the same instance update instead of creating duplicates."; wrap: word-wrap; color: #1e40af; }
+            Text { text: "Received from main window:"; font-weight: 700; color: #1e3a8a; }
+            Rectangle {
+                background: #dbeafe;
+                border-radius: 12px;
+                border-width: 1px;
+                border-color: #93c5fd;
+                min-height: 72px;
+                Text { text: selected-text; wrap: word-wrap; color: #1e3a8a; x: 12px; y: 12px; width: parent.width - 24px; }
+            }
+            Text { text: helper-text; wrap: word-wrap; color: #1e40af; }
+            HorizontalLayout {
+                spacing: 10px;
+                Button { text: "Send callback"; clicked => { root.acknowledge-selection("Learner confirmed the selection from the details window."); } }
+                Button { text: "Close window"; clicked => { root.request-close(); } }
+            }
+        }
+    }
+}
