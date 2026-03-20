@@ -1,13 +1,57 @@
 import { ScrollView } from "std-widgets.slint";
+import { ThemeOptionData } from "demo-data.slint";
 
-// Styling lesson: this page keeps the layout simple so color, border, and typography choices are
-// easier to compare.
-// Watch for: the Rust-provided `theme-name` property flowing into an otherwise presentation-only
-// page.
-// Try changing this: swap palettes without changing spacing to separate style experiments from
-// layout experiments.
+component ThemeOptionCard inherits Rectangle {
+    in property <string> id;
+    in property <string> label;
+    in property <string> summary;
+    in property <string> accent-hex;
+    in property <bool> selected;
+    callback choose(string);
+
+    min-width: 240px;
+    border-radius: 14px;
+    border-width: 1px;
+    border-color: selected ? #2563eb : #d9e2ec;
+    background: selected ? #eff6ff : #f8fafc;
+
+    TouchArea { clicked => { root.choose(root.id); } mouse-cursor: pointer; }
+
+    VerticalLayout {
+        padding: 14px;
+        spacing: 8px;
+        Rectangle { height: 10px; border-radius: 999px; background: selected ? #2563eb : #94a3b8; }
+        Text { text: label; font-size: 18px; font-weight: 800; color: #102a43; }
+        Text { text: summary; wrap: word-wrap; color: #475569; }
+        Text { text: "Accent token: " + accent-hex; color: #64748b; }
+    }
+}
+
+component ReusableTokenCard inherits Rectangle {
+    in property <string> title;
+    in property <string> body;
+    in property <string> accent-hex;
+
+    border-radius: 14px;
+    border-width: 1px;
+    border-color: #d9e2ec;
+    background: #ffffff;
+    VerticalLayout {
+        padding: 16px;
+        spacing: 8px;
+        Rectangle { height: 8px; border-radius: 999px; background: #2563eb; }
+        Text { text: title; font-size: 18px; font-weight: 800; color: #102a43; }
+        Text { text: body; wrap: word-wrap; color: #475569; }
+    }
+}
+
 export component StylingAndThemesPage inherits Rectangle {
-    in property <string> theme-name;
+    in property <[ThemeOptionData]> theme-options;
+    in property <string> selected-theme-id;
+    in property <string> selected-theme-label;
+    in property <string> selected-theme-summary;
+    in property <string> accent-hex;
+    callback select-theme(string);
 
     background: #ffffff;
     border-radius: 16px;
@@ -23,56 +67,50 @@ export component StylingAndThemesPage inherits Rectangle {
             Rectangle {
                 background: #111827;
                 border-radius: 14px;
-                min-height: 96px;
+                min-height: 104px;
                 VerticalLayout {
                     padding: 16px;
                     spacing: 6px;
-                    Text { text: "Theme preview"; font-size: 22px; font-weight: 800; color: white; }
-                    Text { text: "Current teaching theme: " + theme-name; color: #d1d5db; }
-                    Text { text: "Use a high-contrast hero card to explain typography, emphasis, and contrast."; wrap: word-wrap; color: #e5e7eb; }
+                    Text { text: "Theme-like customization"; font-size: 24px; font-weight: 800; color: white; }
+                    Text { text: "Selected theme: " + selected-theme-label; color: #e5e7eb; }
+                    Text { text: selected-theme-summary; wrap: word-wrap; color: #cbd5e1; }
                 }
+            }
+
+            for option in theme-options : ThemeOptionCard {
+                id: option.id;
+                label: option.label;
+                summary: option.summary;
+                accent-hex: option.accent_hex;
+                selected: option.selected;
+                choose(theme-id) => { root.select-theme(theme-id); }
             }
 
             HorizontalLayout {
                 spacing: 14px;
-                Rectangle {
-                    background: #eff6ff;
-                    border-radius: 14px;
-                    border-width: 1px;
-                    border-color: #bfdbfe;
-                    min-width: 280px;
-                    VerticalLayout {
-                        padding: 16px;
-                        spacing: 8px;
-                        Text { text: "Card styling"; font-size: 20px; font-weight: 800; color: #1d4ed8; }
-                        Text { text: "Rounded corners, subtle borders, and grouped text create a reusable panel pattern."; wrap: word-wrap; color: #1e3a8a; }
-                    }
+                ReusableTokenCard {
+                    title: "Recommended pattern";
+                    accent-hex: root.accent-hex;
+                    body: "Keep spacing and reusable component structure stable while Rust selects a palette or style variant. That makes theme changes easier to discuss and test.";
                 }
-                Rectangle {
-                    background: #fef2f2;
-                    border-radius: 14px;
-                    border-width: 1px;
-                    border-color: #fecaca;
-                    min-width: 280px;
-                    VerticalLayout {
-                        padding: 16px;
-                        spacing: 8px;
-                        Text { text: "Color semantics"; font-size: 20px; font-weight: 800; color: #b91c1c; }
-                        Text { text: "Different palettes can represent information, warning, or accent areas without changing the layout."; wrap: word-wrap; color: #991b1b; }
-                    }
+                ReusableTokenCard {
+                    title: "Less-ideal comparison";
+                    accent-hex: "#f59e0b";
+                    body: "Editing colors, spacing, and typography inline in every card often hides whether you changed style semantics or layout intent.";
                 }
             }
 
             Rectangle {
-                background: #fffbeb;
+                background: #f8fafc;
                 border-radius: 14px;
                 border-width: 1px;
-                border-color: #fde68a;
+                border-color: #d9e2ec;
                 VerticalLayout {
                     padding: 16px;
-                    spacing: 10px;
-                    Text { text: "Teaching prompt"; font-size: 20px; font-weight: 800; color: #92400e; }
-                    Text { text: "Ask learners which parts of this page are style-only and which parts affect layout or behavior."; wrap: word-wrap; color: #b45309; }
+                    spacing: 8px;
+                    Text { text: "Teaching note"; font-size: 20px; font-weight: 800; color: #102a43; }
+                    Text { text: "This repo uses theme-like examples for education. They help explain customization and style variants, but they are not claiming a complete design-token system."; wrap: word-wrap; color: #475569; }
+                    Text { text: "Current selection id: " + selected-theme-id; color: #64748b; }
                 }
             }
         }

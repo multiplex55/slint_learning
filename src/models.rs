@@ -6,6 +6,7 @@
 //! Study here: small view models, clamping/validation before publishing to the UI, and where to
 //! place state that should outlive a single Slint component.
 
+use crate::advanced_demos::AdvancedDemosState;
 use crate::dashboard::default_recent_items;
 use crate::navigation::{page_title, NavigationState, PageId};
 use crate::window_management::{WindowManagementController, WindowManagementViewModel};
@@ -29,6 +30,7 @@ pub struct SharedLearningState {
     pub navigation: NavigationState,
     pub last_dashboard_action: String,
     pub window_demo: WindowManagementController,
+    pub advanced_demos: AdvancedDemosState,
     shared_note_text: String,
     shared_progress_value: i32,
 }
@@ -46,6 +48,7 @@ impl Default for SharedLearningState {
                 recent_items[0].label, recent_items[1].label
             ),
             window_demo: WindowManagementController::default(),
+            advanced_demos: AdvancedDemosState::default(),
             shared_note_text: Self::default_note_text().to_string(),
             shared_progress_value: Self::default_progress_value(),
         }
@@ -95,6 +98,8 @@ impl SharedLearningState {
             PageId::StylingAndThemes => format!("The current example theme is {}—use it to talk about visual hierarchy.", self.current_theme),
             PageId::WindowManagement => "Compare reused, hidden, and recreated child windows while discussing Rust ownership of window handles.".to_string(),
             PageId::CrossPageData => format!("Edit the shared note or progress here, then watch the dashboard reflect the same Rust-owned values for {}.", self.cohort_name),
+            PageId::PerformanceAndBestPractices => "Use the notes on this page to discuss maintainability, update strategy, and why educational demos should avoid overclaiming benchmark accuracy.".to_string(),
+            PageId::Playground => "Try a few bindings, visibility toggles, and loading-state experiments here before deciding what should stay declarative versus callback-driven.".to_string(),
         }
     }
 

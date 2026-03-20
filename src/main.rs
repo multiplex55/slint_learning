@@ -6,6 +6,7 @@
 //! Study here: how a Rust binary stays minimal while feature-specific behavior lives in
 //! smaller modules that are easier to test and explain.
 
+mod advanced_demos;
 mod app;
 mod dashboard;
 mod models;

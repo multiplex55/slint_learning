@@ -1,0 +1,89 @@
+import { ScrollView } from "std-widgets.slint";
+import { PatternNoteData, ComponentMetaData } from "demo-data.slint";
+
+component PatternCard inherits Rectangle {
+    in property <string> title;
+    in property <string> category;
+    in property <string> recommendation;
+    in property <string> less-ideal;
+
+    border-radius: 14px;
+    border-width: 1px;
+    border-color: #d9e2ec;
+    background: #ffffff;
+    VerticalLayout {
+        padding: 16px;
+        spacing: 8px;
+        Text { text: title; font-size: 20px; font-weight: 800; color: #102a43; }
+        Text { text: "Category: " + category; color: #64748b; }
+        Text { text: "Recommended: " + recommendation; wrap: word-wrap; color: #166534; }
+        Text { text: "Less-ideal: " + less-ideal; wrap: word-wrap; color: #9a3412; }
+    }
+}
+
+export component PerformanceAndBestPracticesPage inherits Rectangle {
+    in property <[PatternNoteData]> pattern-notes;
+    in property <[ComponentMetaData]> component-registry;
+    in property <string> component-summary;
+    in property <int> visible-component-count;
+
+    background: #ffffff;
+    border-radius: 16px;
+
+    ScrollView {
+        viewport-height: 560px;
+        viewport-width: 920px;
+        VerticalLayout {
+            padding: 18px;
+            spacing: 16px;
+
+            Rectangle {
+                background: #f8fafc;
+                border-radius: 14px;
+                border-width: 1px;
+                border-color: #d9e2ec;
+                VerticalLayout {
+                    padding: 16px;
+                    spacing: 8px;
+                    Text { text: "Performance and maintainability teaching notes"; font-size: 24px; font-weight: 800; color: #102a43; }
+                    Text { text: "These notes focus on practical patterns: reuse components, centralize shared state when multiple views care, and avoid needless UI churn. They are educational heuristics rather than benchmark claims."; wrap: word-wrap; color: #475569; }
+                    Text { text: component-summary; wrap: word-wrap; color: #64748b; }
+                    Text { text: "Default-visible reusable pieces in the registry: " + visible-component-count; color: #64748b; }
+                }
+            }
+
+            for note in pattern-notes : PatternCard {
+                title: note.title;
+                category: note.category;
+                recommendation: note.recommendation;
+                less-ideal: note.less_ideal;
+            }
+
+            Rectangle {
+                background: #eff6ff;
+                border-radius: 14px;
+                border-width: 1px;
+                border-color: #bfdbfe;
+                VerticalLayout {
+                    padding: 16px;
+                    spacing: 10px;
+                    Text { text: "Reusable component registry"; font-size: 20px; font-weight: 800; color: #1d4ed8; }
+                    Text { text: "The registry below is a plain Rust data source. Keeping this metadata outside the UI makes grouping, defaults, and tests easier to reason about."; wrap: word-wrap; color: #1e3a8a; }
+                    for item in component-registry : Rectangle {
+                        background: item.recommended ? #ffffff : #fff7ed;
+                        border-radius: 12px;
+                        border-width: 1px;
+                        border-color: item.default_visible ? #93c5fd : #fdba74;
+                        min-height: 58px;
+                        VerticalLayout {
+                            padding: 12px;
+                            spacing: 4px;
+                            Text { text: item.title + " (" + item.id + ")"; font-weight: 700; color: #102a43; }
+                            Text { text: "Category: " + item.category + " • default visible: " + (item.default_visible ? "yes" : "no") + " • recommended: " + (item.recommended ? "yes" : "no"); color: #475569; }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

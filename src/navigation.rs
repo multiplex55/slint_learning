@@ -16,10 +16,12 @@ pub enum PageId {
     StylingAndThemes,
     WindowManagement,
     CrossPageData,
+    PerformanceAndBestPractices,
+    Playground,
 }
 
 impl PageId {
-    pub const ALL: [Self; 7] = [
+    pub const ALL: [Self; 9] = [
         Self::Dashboard,
         Self::Layouts,
         Self::ButtonsAndInputs,
@@ -27,6 +29,8 @@ impl PageId {
         Self::StylingAndThemes,
         Self::WindowManagement,
         Self::CrossPageData,
+        Self::PerformanceAndBestPractices,
+        Self::Playground,
     ];
 
     pub const fn as_index(self) -> i32 {
@@ -38,6 +42,8 @@ impl PageId {
             Self::StylingAndThemes => 4,
             Self::WindowManagement => 5,
             Self::CrossPageData => 6,
+            Self::PerformanceAndBestPractices => 7,
+            Self::Playground => 8,
         }
     }
 
@@ -50,6 +56,8 @@ impl PageId {
             4 => Some(Self::StylingAndThemes),
             5 => Some(Self::WindowManagement),
             6 => Some(Self::CrossPageData),
+            7 => Some(Self::PerformanceAndBestPractices),
+            8 => Some(Self::Playground),
             _ => None,
         }
     }
@@ -80,15 +88,15 @@ impl PageId {
             Self::ListsAndModels => PageMeta {
                 id: Self::ListsAndModels,
                 title: "Lists and Models",
-                description: "Show repeated elements, scrollable regions, and list-oriented presentation patterns.",
-                notes: "This is a good bridge to later lessons about Rust models and dynamic data sources.",
+                description: "Show repeated elements, scrollable regions, and Rust-backed list/model presentation patterns.",
+                notes: "Use this page to compare repeated Slint markup with data prepared by small Rust transformation helpers.",
                 category: "Interactive Widgets",
             },
             Self::StylingAndThemes => PageMeta {
                 id: Self::StylingAndThemes,
                 title: "Styling and Themes",
-                description: "Highlight cards, panels, color systems, and reusable visual treatments for teaching Slint styling.",
-                notes: "Contrast visual grouping with layout grouping so learners can see style and structure separately.",
+                description: "Highlight colors, spacing, component reuse, and theme-like customization patterns.",
+                notes: "Contrast stable layout structure with theme changes so learners can separate style choices from logic.",
                 category: "Presentation",
             },
             Self::WindowManagement => PageMeta {
@@ -105,6 +113,20 @@ impl PageId {
                 notes: "Use this page when introducing shared Rust state, callback wiring, and future page communication.",
                 category: "Application Shell",
             },
+            Self::PerformanceAndBestPractices => PageMeta {
+                id: Self::PerformanceAndBestPractices,
+                title: "Performance and Best Practices",
+                description: "Teaching notes about reusable components, centralized state, and avoiding unnecessary UI churn.",
+                notes: "Keep expectations grounded: these examples explain maintainability and update patterns, not precise benchmark results.",
+                category: "Architecture",
+            },
+            Self::Playground => PageMeta {
+                id: Self::Playground,
+                title: "Playground",
+                description: "Try bindings, imperative updates, conditional visibility, animations, and mock loading states in one place.",
+                notes: "Use this page for guided experiments that compare recommended declarative patterns with small imperative examples.",
+                category: "Hands-on Lab",
+            },
         }
     }
 }
@@ -119,10 +141,7 @@ pub struct PageMeta {
     pub category: &'static str,
 }
 
-// Take note: this registry is the Rust-side source of truth for labels/order. The UI hard-codes
-// matching navigation buttons today so learners can compare static Slint markup with a typed Rust
-// registry before moving on to dynamic menu/list generation.
-pub const PAGE_REGISTRY: [PageMeta; 7] = [
+pub const PAGE_REGISTRY: [PageMeta; 9] = [
     PageId::Dashboard.meta(),
     PageId::Layouts.meta(),
     PageId::ButtonsAndInputs.meta(),
@@ -130,9 +149,11 @@ pub const PAGE_REGISTRY: [PageMeta; 7] = [
     PageId::StylingAndThemes.meta(),
     PageId::WindowManagement.meta(),
     PageId::CrossPageData.meta(),
+    PageId::PerformanceAndBestPractices.meta(),
+    PageId::Playground.meta(),
 ];
 
-pub const fn page_registry() -> &'static [PageMeta; 7] {
+pub const fn page_registry() -> &'static [PageMeta; 9] {
     &PAGE_REGISTRY
 }
 
@@ -148,7 +169,6 @@ pub const fn page_category(page: PageId) -> &'static str {
     page.meta().category
 }
 
-/// Mutable shell selection state stays tiny so it is straightforward to unit test.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct NavigationState {
     pub current_page: PageId,
@@ -164,8 +184,6 @@ impl Default for NavigationState {
 
 impl NavigationState {
     pub fn select_page_by_index(&mut self, index: i32) {
-        // Try changing this: send an out-of-range index from Slint and verify that Rust keeps the
-        // previous page instead of crashing or selecting an invalid route.
         if let Some(page) = PageId::from_index(index) {
             self.current_page = page;
         }
@@ -218,7 +236,7 @@ mod tests {
 
         assert_eq!(ordered_ids, PageId::ALL);
         assert_eq!(page_registry()[0].title, "Dashboard");
-        assert_eq!(page_registry()[6].title, "Cross-page Data");
+        assert_eq!(page_registry()[8].title, "Playground");
     }
 
     #[test]
@@ -229,6 +247,10 @@ mod tests {
             "Explore common form controls such as buttons, checkboxes, switches, text input, and selectors."
         );
         assert_eq!(page_category(PageId::WindowManagement), "Application Shell");
+        assert_eq!(
+            page_category(PageId::PerformanceAndBestPractices),
+            "Architecture"
+        );
     }
 
     #[test]
