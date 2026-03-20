@@ -1,0 +1,120 @@
+import { ScrollView } from "std-widgets.slint";
+export component LayoutsPage inherits Rectangle {
+    background: #ffffff;
+    border-radius: 16px;
+
+    ScrollView {
+        viewport-height: 560px;
+        viewport-width: 920px;
+
+        VerticalLayout {
+            padding: 18px;
+            spacing: 16px;
+
+            Text {
+                text: "This page demonstrates horizontal and vertical flows, grid-like cards, nested containers, and explicit spacing labels.";
+                wrap: word-wrap;
+                color: #52606d;
+            }
+
+            HorizontalLayout {
+                spacing: 14px;
+
+                Rectangle {
+                    background: #eff6ff;
+                    border-radius: 14px;
+                    border-width: 1px;
+                    border-color: #bfdbfe;
+                    min-width: 280px;
+
+                    VerticalLayout {
+                        padding: 16px;
+                        spacing: 10px;
+                        Text { text: "Vertical layout"; font-size: 20px; font-weight: 800; color: #1d4ed8; }
+                        Text { text: "Children stack top-to-bottom with consistent spacing."; wrap: word-wrap; color: #1e3a8a; }
+                        Rectangle { height: 34px; background: #dbeafe; border-radius: 8px; Text { text: "Item A"; vertical-alignment: center; horizontal-alignment: center; color: #1e3a8a; } }
+                        Rectangle { height: 34px; background: #bfdbfe; border-radius: 8px; Text { text: "Item B"; vertical-alignment: center; horizontal-alignment: center; color: #1e3a8a; } }
+                        Rectangle { height: 34px; background: #93c5fd; border-radius: 8px; Text { text: "Item C"; vertical-alignment: center; horizontal-alignment: center; color: white; } }
+                    }
+                }
+
+                Rectangle {
+                    background: #f0fdf4;
+                    border-radius: 14px;
+                    border-width: 1px;
+                    border-color: #86efac;
+                    min-width: 280px;
+
+                    VerticalLayout {
+                        padding: 16px;
+                        spacing: 10px;
+                        Text { text: "Horizontal layout"; font-size: 20px; font-weight: 800; color: #15803d; }
+                        Text { text: "Children can line up side-by-side and still share equal spacing."; wrap: word-wrap; color: #166534; }
+                        HorizontalLayout {
+                            spacing: 8px;
+                            Rectangle { min-width: 72px; height: 80px; background: #bbf7d0; border-radius: 8px; Text { text: "Left"; horizontal-alignment: center; vertical-alignment: center; color: #166534; } }
+                            Rectangle { min-width: 72px; height: 80px; background: #86efac; border-radius: 8px; Text { text: "Center"; horizontal-alignment: center; vertical-alignment: center; color: #166534; } }
+                            Rectangle { min-width: 72px; height: 80px; background: #4ade80; border-radius: 8px; Text { text: "Right"; horizontal-alignment: center; vertical-alignment: center; color: #14532d; } }
+                        }
+                    }
+                }
+            }
+
+            Rectangle {
+                background: #f8fafc;
+                border-radius: 14px;
+                border-width: 1px;
+                border-color: #d9e2ec;
+
+                VerticalLayout {
+                    padding: 16px;
+                    spacing: 12px;
+                    Text { text: "Grid-like arrangement"; font-size: 20px; font-weight: 800; color: #102a43; }
+                    Text { text: "This card uses nested horizontal rows to approximate a simple dashboard grid."; wrap: word-wrap; color: #52606d; }
+                    for cell in ["Top left card", "Top right card"] : Rectangle {
+                        height: 0px;
+                    }
+                    HorizontalLayout {
+                        spacing: 12px;
+                        Rectangle { background: #e0e7ff; border-radius: 12px; min-width: 220px; height: 110px; Text { text: "Top left card"; horizontal-alignment: center; vertical-alignment: center; color: #3730a3; } }
+                        Rectangle { background: #ede9fe; border-radius: 12px; min-width: 220px; height: 110px; Text { text: "Top right card"; horizontal-alignment: center; vertical-alignment: center; color: #5b21b6; } }
+                    }
+                    HorizontalLayout {
+                        spacing: 12px;
+                        Rectangle { background: #fee2e2; border-radius: 12px; min-width: 220px; height: 110px; Text { text: "Bottom left card"; horizontal-alignment: center; vertical-alignment: center; color: #991b1b; } }
+                        Rectangle { background: #ffedd5; border-radius: 12px; min-width: 220px; height: 110px; Text { text: "Bottom right card"; horizontal-alignment: center; vertical-alignment: center; color: #9a3412; } }
+                    }
+                }
+            }
+
+            Rectangle {
+                background: #faf5ff;
+                border-radius: 14px;
+                border-width: 1px;
+                border-color: #d8b4fe;
+
+                VerticalLayout {
+                    padding: 16px;
+                    spacing: 12px;
+                    Text { text: "Nested containers and alignment"; font-size: 20px; font-weight: 800; color: #6b21a8; }
+                    Text { text: "The outer panel provides padding, the inner panel centers a label, and the captions explain why each layer exists."; wrap: word-wrap; color: #7e22ce; }
+                    Rectangle {
+                        background: #f3e8ff;
+                        border-radius: 12px;
+                        height: 160px;
+                        HorizontalLayout {
+                            padding: 14px;
+                            spacing: 14px;
+                            Rectangle { background: white; border-radius: 10px; border-width: 1px; border-color: #d8b4fe; min-width: 180px; Text { text: "Aligned card"; horizontal-alignment: center; vertical-alignment: center; color: #6b21a8; } }
+                            VerticalLayout {
+                                spacing: 8px;
+                                Text { text: "Inner card"; font-size: 16px; font-weight: 700; color: #6b21a8; }
+                                Text { text: "Useful when you need one section to center its content while the surrounding container keeps explanatory text at the top."; wrap: word-wrap; color: #7e22ce; }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

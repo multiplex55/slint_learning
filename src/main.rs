@@ -1,6 +1,5 @@
 //! Entry point for the Slint learning workspace.
-//! Start here after skimming `README.md`: it keeps the binary tiny and delegates
-//! the interesting behavior into plain Rust modules that are easy to unit test.
+//! The shell intentionally keeps navigation logic in Rust and page composition in `.slint` files.
 
 mod app;
 mod models;

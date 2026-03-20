@@ -1,0 +1,68 @@
+import { ScrollView } from "std-widgets.slint";
+export component CrossPageDataPage inherits Rectangle {
+    in property <string> learner-name;
+    in property <string> cohort-name;
+    in property <string> theme-name;
+    in property <string> shared-status;
+
+    background: #ffffff;
+    border-radius: 16px;
+
+    ScrollView {
+        viewport-height: 560px;
+        viewport-width: 920px;
+
+        VerticalLayout {
+            padding: 18px;
+            spacing: 16px;
+
+            Text { text: "This page reuses the same Rust-provided values shown on the dashboard to make shared application state tangible."; wrap: word-wrap; color: #52606d; }
+
+            HorizontalLayout {
+                spacing: 14px;
+                Rectangle {
+                    background: #eff6ff;
+                    border-radius: 14px;
+                    border-width: 1px;
+                    border-color: #bfdbfe;
+                    min-width: 280px;
+                    VerticalLayout {
+                        padding: 16px;
+                        spacing: 8px;
+                        Text { text: "Shared identity"; font-size: 20px; font-weight: 800; color: #1d4ed8; }
+                        Text { text: "Learner: " + learner-name; color: #1e40af; }
+                        Text { text: "Cohort: " + cohort-name; color: #1e40af; }
+                    }
+                }
+                Rectangle {
+                    background: #f0fdf4;
+                    border-radius: 14px;
+                    border-width: 1px;
+                    border-color: #86efac;
+                    min-width: 280px;
+                    VerticalLayout {
+                        padding: 16px;
+                        spacing: 8px;
+                        Text { text: "Shared presentation"; font-size: 20px; font-weight: 800; color: #15803d; }
+                        Text { text: "Theme: " + theme-name; color: #166534; }
+                        Text { text: "Notice that the page does not own this value; it receives it from the shell."; wrap: word-wrap; color: #166534; }
+                    }
+                }
+            }
+
+            Rectangle {
+                background: #fffbeb;
+                border-radius: 14px;
+                border-width: 1px;
+                border-color: #fde68a;
+                VerticalLayout {
+                    padding: 16px;
+                    spacing: 10px;
+                    Text { text: "What to learn here"; font-size: 20px; font-weight: 800; color: #92400e; }
+                    Text { text: shared-status; wrap: word-wrap; color: #b45309; }
+                    Text { text: "If you later add callbacks or editable fields, this page is a good place to show how one change can affect multiple demos."; wrap: word-wrap; color: #b45309; }
+                }
+            }
+        }
+    }
+}
