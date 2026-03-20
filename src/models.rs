@@ -1,7 +1,8 @@
 //! Shared learning data sits outside the `.slint` files so later lessons can connect
 //! richer state without rewriting the teaching shell.
 
-use crate::navigation::{NavigationState, PageId};
+use crate::dashboard::default_recent_items;
+use crate::navigation::{page_title, NavigationState, PageId};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct SharedLearningState {
@@ -9,15 +10,21 @@ pub struct SharedLearningState {
     pub cohort_name: String,
     pub current_theme: String,
     pub navigation: NavigationState,
+    pub last_dashboard_action: String,
 }
 
 impl Default for SharedLearningState {
     fn default() -> Self {
+        let recent_items = default_recent_items();
         Self {
             learner_name: "Curious Slint learner".to_string(),
             cohort_name: "Spring UI study group".to_string(),
             current_theme: "Studio Light".to_string(),
             navigation: NavigationState::default(),
+            last_dashboard_action: format!(
+                "Dashboard ready. Recent menu demos include {} and {}.",
+                recent_items[0].label, recent_items[1].label
+            ),
         }
     }
 }
@@ -27,6 +34,14 @@ impl SharedLearningState {
         format!(
             "{} is exploring the shell with the {} cohort using the {} theme.",
             self.learner_name, self.cohort_name, self.current_theme
+        )
+    }
+
+    pub fn dashboard_status_summary(&self) -> String {
+        format!(
+            "Selected page: {}. Last dashboard action: {}",
+            page_title(self.navigation.current_page),
+            self.last_dashboard_action
         )
     }
 
@@ -58,5 +73,6 @@ mod tests {
         assert_eq!(state.cohort_name, "Spring UI study group");
         assert_eq!(state.current_theme, "Studio Light");
         assert_eq!(state.navigation.current_page, PageId::Dashboard);
+        assert!(state.last_dashboard_action.contains("sample-1.slint"));
     }
 }

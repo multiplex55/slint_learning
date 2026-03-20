@@ -1,9 +1,66 @@
-import { ScrollView } from "std-widgets.slint";
+import { Button, ScrollView } from "std-widgets.slint";
+
+component DemoMenuButton inherits Rectangle {
+    in property <string> label;
+    in property <bool> selected;
+    callback clicked;
+
+    min-width: 92px;
+    min-height: 38px;
+    border-radius: 10px;
+    border-width: 1px;
+    border-color: selected ? #60a5fa : #cbd5e1;
+    background: selected ? #dbeafe : #f8fafc;
+
+    TouchArea {
+        clicked => { root.clicked(); }
+        mouse-cursor: pointer;
+    }
+
+    Text {
+        text: label;
+        color: #0f172a;
+        font-weight: 700;
+        horizontal-alignment: center;
+        vertical-alignment: center;
+    }
+}
+
+component DemoMenuItem inherits Rectangle {
+    in property <string> label;
+    callback clicked;
+
+    min-height: 34px;
+    background: #ffffff;
+
+    TouchArea {
+        clicked => { root.clicked(); }
+        mouse-cursor: pointer;
+    }
+
+    Text {
+        x: 12px;
+        width: parent.width - 24px;
+        text: label;
+        color: #334155;
+        vertical-alignment: center;
+    }
+}
+
 export component DashboardPage inherits Rectangle {
     in property <string> learner-name;
     in property <string> cohort-name;
     in property <string> theme-name;
     in property <string> shared-status;
+    in property <string> status-summary;
+    callback request-page(int);
+    callback trigger-action(string);
+
+    property <bool> file-menu-open: false;
+    property <bool> view-menu-open: false;
+    property <bool> help-menu-open: false;
+    property <bool> export-menu-open: false;
+    property <bool> recent-menu-open: false;
 
     background: #ffffff;
     border-radius: 16px;
@@ -24,15 +81,267 @@ export component DashboardPage inherits Rectangle {
 
                 VerticalLayout {
                     padding: 16px;
-                    spacing: 8px;
+                    spacing: 12px;
 
-                    Text { text: "Shell overview"; font-size: 22px; font-weight: 800; color: #1d4ed8; }
+                    Text { text: "Dashboard landing page"; font-size: 24px; font-weight: 800; color: #1d4ed8; }
                     Text {
-                        text: "This dashboard is the orientation page. It names the shell regions, shows the shared context supplied by Rust, and previews the kinds of demos hosted in the center panel.";
+                        text: "This page teaches top-level desktop menu ideas. Slint's portable widgets do not expose a fully native cross-platform menu bar here, so this dashboard intentionally simulates menus with labeled buttons and popup-style panels.";
                         wrap: word-wrap;
                         color: #1e3a8a;
                     }
-                    Text { text: shared-status; wrap: word-wrap; color: #1e40af; }
+
+                    // The top-level dashboard owns the menu-open booleans because desktop menus are shell concerns,
+                    // not page-content concerns. Each button toggles only its own menu and closes the others.
+                    Rectangle {
+                        height: 280px;
+                        background: #f8fafc;
+                        border-radius: 12px;
+                        border-width: 1px;
+                        border-color: #cbd5e1;
+
+                        DemoMenuButton {
+                            x: 12px;
+                            y: 12px;
+                            label: "File";
+                            selected: root.file-menu-open;
+                            clicked => {
+                                root.file-menu-open = !root.file-menu-open;
+                                root.view-menu-open = false;
+                                root.help-menu-open = false;
+                                root.export-menu-open = false;
+                                root.recent-menu-open = false;
+                            }
+                        }
+
+                        DemoMenuButton {
+                            x: 116px;
+                            y: 12px;
+                            label: "View";
+                            selected: root.view-menu-open;
+                            clicked => {
+                                root.view-menu-open = !root.view-menu-open;
+                                root.file-menu-open = false;
+                                root.help-menu-open = false;
+                                root.export-menu-open = false;
+                                root.recent-menu-open = false;
+                            }
+                        }
+
+                        DemoMenuButton {
+                            x: 220px;
+                            y: 12px;
+                            label: "Help";
+                            selected: root.help-menu-open;
+                            clicked => {
+                                root.help-menu-open = !root.help-menu-open;
+                                root.file-menu-open = false;
+                                root.view-menu-open = false;
+                                root.export-menu-open = false;
+                                root.recent-menu-open = false;
+                            }
+                        }
+
+                        // Menu items call back into Rust through `trigger-action`, which keeps the dispatch table
+                        // testable in unit tests and mirrors how a desktop shell would own command routing.
+                        if root.file-menu-open : Rectangle {
+                            x: 12px;
+                            y: 56px;
+                            width: 228px;
+                            height: 174px;
+                            background: #ffffff;
+                            border-radius: 10px;
+                            border-width: 1px;
+                            border-color: #cbd5e1;
+
+                            DemoMenuItem {
+                                y: 2px;
+                                width: parent.width - 4px;
+                                x: 2px;
+                                label: "New";
+                                clicked => {
+                                    root.trigger-action("file.new");
+                                    root.file-menu-open = false;
+                                }
+                            }
+                            DemoMenuItem {
+                                y: 36px;
+                                width: parent.width - 4px;
+                                x: 2px;
+                                label: "Open";
+                                clicked => {
+                                    root.trigger-action("file.open");
+                                    root.file-menu-open = false;
+                                }
+                            }
+                            DemoMenuItem {
+                                y: 70px;
+                                width: parent.width - 4px;
+                                x: 2px;
+                                label: root.recent-menu-open ? "Recent ◀" : "Recent ▶";
+                                clicked => {
+                                    root.recent-menu-open = !root.recent-menu-open;
+                                    root.export-menu-open = false;
+                                }
+                            }
+                            DemoMenuItem {
+                                y: 104px;
+                                width: parent.width - 4px;
+                                x: 2px;
+                                label: root.export-menu-open ? "Export ◀" : "Export ▶";
+                                clicked => {
+                                    root.export-menu-open = !root.export-menu-open;
+                                    root.recent-menu-open = false;
+                                }
+                            }
+                            DemoMenuItem {
+                                y: 138px;
+                                width: parent.width - 4px;
+                                x: 2px;
+                                label: "Exit";
+                                clicked => {
+                                    root.trigger-action("file.exit");
+                                    root.file-menu-open = false;
+                                    root.export-menu-open = false;
+                                    root.recent-menu-open = false;
+                                }
+                            }
+                        }
+
+                        // Nested submenu state is independent so learners can see that parents own visibility,
+                        // while child menu identifiers still route through the same Rust callback table.
+                        if root.file-menu-open && root.recent-menu-open : Rectangle {
+                            x: 244px;
+                            y: 126px;
+                            width: 220px;
+                            height: 72px;
+                            background: #ffffff;
+                            border-radius: 10px;
+                            border-width: 1px;
+                            border-color: #cbd5e1;
+
+                            DemoMenuItem {
+                                y: 2px;
+                                width: parent.width - 4px;
+                                x: 2px;
+                                label: "sample-1.slint";
+                                clicked => {
+                                    root.trigger-action("file.recent.sample-1");
+                                    root.file-menu-open = false;
+                                    root.recent-menu-open = false;
+                                }
+                            }
+                            DemoMenuItem {
+                                y: 36px;
+                                width: parent.width - 4px;
+                                x: 2px;
+                                label: "sample-2.slint";
+                                clicked => {
+                                    root.trigger-action("file.recent.sample-2");
+                                    root.file-menu-open = false;
+                                    root.recent-menu-open = false;
+                                }
+                            }
+                        }
+
+                        if root.file-menu-open && root.export-menu-open : Rectangle {
+                            x: 244px;
+                            y: 160px;
+                            width: 220px;
+                            height: 106px;
+                            background: #ffffff;
+                            border-radius: 10px;
+                            border-width: 1px;
+                            border-color: #cbd5e1;
+
+                            DemoMenuItem {
+                                y: 2px;
+                                width: parent.width - 4px;
+                                x: 2px;
+                                label: "PNG";
+                                clicked => {
+                                    root.trigger-action("file.export.png");
+                                    root.file-menu-open = false;
+                                    root.export-menu-open = false;
+                                }
+                            }
+                            DemoMenuItem {
+                                y: 36px;
+                                width: parent.width - 4px;
+                                x: 2px;
+                                label: "JSON";
+                                clicked => {
+                                    root.trigger-action("file.export.json");
+                                    root.file-menu-open = false;
+                                    root.export-menu-open = false;
+                                }
+                            }
+                            DemoMenuItem {
+                                y: 70px;
+                                width: parent.width - 4px;
+                                x: 2px;
+                                label: "Text";
+                                clicked => {
+                                    root.trigger-action("file.export.text");
+                                    root.file-menu-open = false;
+                                    root.export-menu-open = false;
+                                }
+                            }
+                        }
+
+                        if root.view-menu-open : Rectangle {
+                            x: 116px;
+                            y: 56px;
+                            width: 230px;
+                            height: 72px;
+                            background: #ffffff;
+                            border-radius: 10px;
+                            border-width: 1px;
+                            border-color: #cbd5e1;
+
+                            DemoMenuItem {
+                                y: 2px;
+                                width: parent.width - 4px;
+                                x: 2px;
+                                label: "Go to Layouts";
+                                clicked => {
+                                    root.trigger-action("view.layouts");
+                                    root.view-menu-open = false;
+                                }
+                            }
+                            DemoMenuItem {
+                                y: 36px;
+                                width: parent.width - 4px;
+                                x: 2px;
+                                label: "Go to Cross-page Data";
+                                clicked => {
+                                    root.trigger-action("view.shared-state");
+                                    root.view-menu-open = false;
+                                }
+                            }
+                        }
+
+                        if root.help-menu-open : Rectangle {
+                            x: 220px;
+                            y: 56px;
+                            width: 260px;
+                            height: 38px;
+                            background: #ffffff;
+                            border-radius: 10px;
+                            border-width: 1px;
+                            border-color: #cbd5e1;
+
+                            DemoMenuItem {
+                                y: 2px;
+                                width: parent.width - 4px;
+                                x: 2px;
+                                label: "About this menu demo";
+                                clicked => {
+                                    root.trigger-action("help.about-menus");
+                                    root.help-menu-open = false;
+                                }
+                            }
+                        }
+                    }
                 }
             }
 
@@ -44,56 +353,74 @@ export component DashboardPage inherits Rectangle {
                     border-radius: 14px;
                     border-width: 1px;
                     border-color: #d9e2ec;
-                    min-width: 250px;
+                    min-width: 320px;
 
                     VerticalLayout {
                         padding: 16px;
-                        spacing: 8px;
-                        Text { text: "Header"; font-size: 18px; font-weight: 700; color: #102a43; }
-                        Text { text: "Introduces the shell and anchors the shared teaching context."; wrap: word-wrap; color: #52606d; }
+                        spacing: 10px;
+                        Text { text: "Quick links"; font-size: 20px; font-weight: 800; color: #102a43; }
+                        Text { text: "Use these to jump straight to the other demos from the landing page."; wrap: word-wrap; color: #52606d; }
+                        Button { text: "Open Layouts"; clicked => { root.request-page(1); } }
+                        Button { text: "Open Buttons and Inputs"; clicked => { root.request-page(2); } }
+                        Button { text: "Open Lists and Models"; clicked => { root.request-page(3); } }
+                        Button { text: "Open Styling and Themes"; clicked => { root.request-page(4); } }
+                        Button { text: "Open Window Management"; clicked => { root.request-page(5); } }
+                        Button { text: "Open Cross-page Data"; clicked => { root.request-page(6); } }
                     }
                 }
+
                 Rectangle {
-                    background: #f8fafc;
+                    background: #fffbeb;
                     border-radius: 14px;
                     border-width: 1px;
-                    border-color: #d9e2ec;
-                    min-width: 250px;
+                    border-color: #fde68a;
+                    min-width: 320px;
+
                     VerticalLayout {
                         padding: 16px;
-                        spacing: 8px;
-                        Text { text: "Navigation"; font-size: 18px; font-weight: 700; color: #102a43; }
-                        Text { text: "Maps one button to one Rust `PageId`, keeping the shell extendable and testable."; wrap: word-wrap; color: #52606d; }
-                    }
-                }
-                Rectangle {
-                    background: #f8fafc;
-                    border-radius: 14px;
-                    border-width: 1px;
-                    border-color: #d9e2ec;
-                    min-width: 250px;
-                    VerticalLayout {
-                        padding: 16px;
-                        spacing: 8px;
-                        Text { text: "Footer note"; font-size: 18px; font-weight: 700; color: #102a43; }
-                        Text { text: "Shows a compact instructional prompt for the currently selected page."; wrap: word-wrap; color: #52606d; }
+                        spacing: 10px;
+                        Text { text: "What this app teaches"; font-size: 20px; font-weight: 800; color: #92400e; }
+                        for item in [
+                            "How Rust can own navigation and command dispatch while Slint renders the shell.",
+                            "How desktop-style menus can be modeled with explicit callbacks and visible state changes.",
+                            "How shared shell state can feed multiple pages without duplicating logic."
+                        ] : Text {
+                            text: "• " + item;
+                            wrap: word-wrap;
+                            color: #b45309;
+                        }
                     }
                 }
             }
 
             Rectangle {
-                background: #fffbeb;
+                background: #ecfeff;
                 border-radius: 14px;
                 border-width: 1px;
-                border-color: #fde68a;
+                border-color: #a5f3fc;
 
                 VerticalLayout {
                     padding: 16px;
-                    spacing: 10px;
-                    Text { text: "Shared context from Rust"; font-size: 20px; font-weight: 800; color: #92400e; }
-                    Text { text: "Learner: " + learner-name; color: #b45309; }
-                    Text { text: "Cohort: " + cohort-name; color: #b45309; }
-                    Text { text: "Theme: " + theme-name; color: #b45309; }
+                    spacing: 8px;
+                    Text { text: "Status summary"; font-size: 20px; font-weight: 800; color: #155e75; }
+                    Text { text: status-summary; wrap: word-wrap; color: #0f766e; }
+                    Text { text: shared-status; wrap: word-wrap; color: #0f766e; }
+                }
+            }
+
+            Rectangle {
+                background: #f8fafc;
+                border-radius: 14px;
+                border-width: 1px;
+                border-color: #d9e2ec;
+
+                VerticalLayout {
+                    padding: 16px;
+                    spacing: 8px;
+                    Text { text: "Shared context from Rust"; font-size: 20px; font-weight: 800; color: #102a43; }
+                    Text { text: "Learner: " + learner-name; color: #334155; }
+                    Text { text: "Cohort: " + cohort-name; color: #334155; }
+                    Text { text: "Theme: " + theme-name; color: #334155; }
                 }
             }
         }

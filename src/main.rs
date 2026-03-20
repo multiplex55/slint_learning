@@ -2,6 +2,7 @@
 //! The shell intentionally keeps navigation logic in Rust and page composition in `.slint` files.
 
 mod app;
+mod dashboard;
 mod models;
 mod navigation;
 
