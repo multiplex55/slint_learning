@@ -1,5 +1,9 @@
 import { Button } from "std-widgets.slint";
 
+// Child-window lesson: this component demonstrates the "create a fresh window per action"
+// ownership pattern.
+// Watch for: Rust-provided payload properties and a close callback that reports back to the parent.
+// Try changing this: add a counter or timestamp to compare multiple open About windows.
 export component AboutWindow inherits Window {
     in property <string> selected-text;
     in property <string> helper-text;

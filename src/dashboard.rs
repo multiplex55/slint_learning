@@ -1,5 +1,10 @@
-//! Dashboard-specific menu metadata and action dispatching stay in Rust so learners can test
-//! desktop-style command routing without depending on platform-native menu support.
+//! Dashboard menu metadata and dispatching for the desktop-shell lesson.
+//! Module responsibility: define menu item identifiers and translate a UI action string into a
+//! small Rust command plus a teaching-oriented status message.
+//! UI connection: `ui/pages/dashboard.slint` emits string action ids through a callback, and
+//! `src/app.rs` calls the helpers here to decide whether to navigate or just update status text.
+//! Study here: keeping command routing testable in plain Rust, especially when the visual menu is
+//! built declaratively in Slint.
 
 use crate::navigation::PageId;
 
@@ -107,6 +112,8 @@ pub fn resolve_dashboard_action(id: &str) -> Option<&'static DashboardActionMeta
 pub fn dispatch_dashboard_action(id: &str) -> Option<DispatchedDashboardAction> {
     let action = resolve_dashboard_action(id)?;
 
+    // Take note: the UI only knows about string ids. This Rust match translates those strings
+    // into a typed command enum so later lessons can grow behavior without pushing logic into Slint.
     let command = match action.id {
         "view.layouts" => DashboardCommand::Navigate(PageId::Layouts),
         "view.shared-state" => DashboardCommand::Navigate(PageId::CrossPageData),

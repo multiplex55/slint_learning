@@ -1,6 +1,7 @@
-// This first page is intentionally simple.
-// Learners should notice how Rust passes explicit strings into a reusable Slint component.
-
+// Welcome-page lesson: this minimal component shows the simplest Rust-to-Slint handoff—a single
+// incoming property rendered by a reusable page component.
+// Watch for: no callbacks, no local state, just declarative rendering of an injected message.
+// Try changing this: add another property and compare the generated setter in Rust.
 export component WelcomePage inherits Rectangle {
     in property <string> message;
 

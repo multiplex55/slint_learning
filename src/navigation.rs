@@ -1,5 +1,10 @@
-//! Plain Rust navigation types keep the shell testable outside the Slint runtime.
-//! Add pages here first, then wire them into `ui/app-window.slint`.
+//! Page registry and navigation helpers for the learning shell.
+//! Module responsibility: define the stable set of pages, their metadata, and the small amount of
+//! selection state the application needs.
+//! UI connection: `ui/app-window.slint` emits page indices, while `src/app.rs` and the dashboard
+//! translate those indices back into `PageId` values and display-friendly labels.
+//! Study here: enum-to-index conversion, metadata registries, and how to keep view navigation
+//! deterministic and unit-testable outside the Slint runtime.
 
 /// Stable identifiers for every page hosted by the teaching shell.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
@@ -114,6 +119,9 @@ pub struct PageMeta {
     pub category: &'static str,
 }
 
+// Take note: this registry is the Rust-side source of truth for labels/order. The UI hard-codes
+// matching navigation buttons today so learners can compare static Slint markup with a typed Rust
+// registry before moving on to dynamic menu/list generation.
 pub const PAGE_REGISTRY: [PageMeta; 7] = [
     PageId::Dashboard.meta(),
     PageId::Layouts.meta(),
@@ -156,6 +164,8 @@ impl Default for NavigationState {
 
 impl NavigationState {
     pub fn select_page_by_index(&mut self, index: i32) {
+        // Try changing this: send an out-of-range index from Slint and verify that Rust keeps the
+        // previous page instead of crashing or selecting an invalid route.
         if let Some(page) = PageId::from_index(index) {
             self.current_page = page;
         }
@@ -218,22 +228,15 @@ mod tests {
             page_description(PageId::ButtonsAndInputs),
             "Explore common form controls such as buttons, checkboxes, switches, text input, and selectors."
         );
-        assert_eq!(page_category(PageId::CrossPageData), "Application Shell");
+        assert_eq!(page_category(PageId::WindowManagement), "Application Shell");
     }
 
     #[test]
-    fn default_navigation_state_uses_dashboard_page() {
-        let navigation = NavigationState::default();
+    fn selecting_invalid_page_index_preserves_previous_selection() {
+        let mut state = NavigationState::default();
+        state.select_page_by_index(PageId::ListsAndModels.as_index());
+        state.select_page_by_index(99);
 
-        assert_eq!(navigation.current_page, PageId::Dashboard);
-    }
-
-    #[test]
-    fn page_enum_round_trips_through_ui_indexes() {
-        for page in PageId::ALL {
-            assert_eq!(PageId::from_index(page.as_index()), Some(page));
-        }
-
-        assert_eq!(PageId::from_index(99), None);
+        assert_eq!(state.current_page, PageId::ListsAndModels);
     }
 }

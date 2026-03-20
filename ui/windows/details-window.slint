@@ -1,5 +1,9 @@
 import { Button, ScrollView } from "std-widgets.slint";
 
+// Child-window lesson: this window demonstrates the reusable single-instance pattern.
+// Watch for: payload properties set by Rust before `show()` and a callback that lets the child
+// send a message back to the parent controller.
+// Try changing this: open the window twice after editing the draft text to confirm reuse.
 export component DetailsWindow inherits Window {
     in property <string> selected-text;
     in property <string> helper-text;

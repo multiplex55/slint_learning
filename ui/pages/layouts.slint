@@ -1,4 +1,11 @@
 import { ScrollView } from "std-widgets.slint";
+
+// Layout lesson: this page demonstrates stacked sections, side-by-side sections, and nested rows
+// that approximate a simple grid without introducing data models yet.
+// Watch for: `VerticalLayout`, `HorizontalLayout`, padding, and spacing values doing most of the
+// visual work.
+// Try changing this: increase the spacing constants and see how the structure becomes easier or
+// harder to scan.
 export component LayoutsPage inherits Rectangle {
     background: #ffffff;
     border-radius: 16px;
@@ -71,6 +78,8 @@ export component LayoutsPage inherits Rectangle {
                     spacing: 12px;
                     Text { text: "Grid-like arrangement"; font-size: 20px; font-weight: 800; color: #102a43; }
                     Text { text: "This card uses nested horizontal rows to approximate a simple dashboard grid."; wrap: word-wrap; color: #52606d; }
+                    // Take note: the `for` loop below is intentionally trivial—it gives learners a
+                    // place to see repeated-model syntax before the dedicated lists page.
                     for cell in ["Top left card", "Top right card"] : Rectangle {
                         height: 0px;
                     }

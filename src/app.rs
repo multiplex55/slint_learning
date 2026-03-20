@@ -1,5 +1,11 @@
-//! Application wiring keeps the shell focused on the split between testable Rust state
-//! and declarative Slint page composition.
+//! Application wiring for the teaching shell.
+//! Module responsibility: connect Rust-owned state, navigation, and child-window controllers
+//! to the generated Slint component API.
+//! UI connection: every callback registered here comes from `ui/app-window.slint` or one of the
+//! exported child-window components, and every `set_*` call republishes Rust data back into UI
+//! properties.
+//! Study here: weak handles, `Rc<RefCell<_>>` shared ownership, callback registration, and how
+//! one Rust controller can keep multiple pages/windows synchronized.
 
 use std::cell::RefCell;
 use std::rc::Rc;
@@ -14,17 +20,20 @@ use crate::{AboutWindow, AppWindow, DetailsWindow, InspectorWindow};
 
 #[derive(Default)]
 struct RuntimeWindows {
-    // Ownership note: top-level windows must stay owned by Rust after `show()`.
+    // Take note: top-level windows must stay owned by Rust after `show()`.
     // If these handles were created inside a callback and then dropped, the
     // secondary windows would disappear immediately on most backends.
     details: Option<DetailsWindow>,
     inspector: Option<InspectorWindow>,
+    // Multi-window ownership pattern: About windows demonstrate the opposite approach from the
+    // reusable windows above—Rust intentionally keeps a growing list of independently created
+    // instances so learners can compare "reuse one handle" vs. "spawn many handles".
     about_windows: Vec<AboutWindow>,
 }
 
 pub fn run_desktop_learning_app() -> Result<(), slint::PlatformError> {
     let app_window = AppWindow::new()?;
-    // Lifetime note: `Rc<RefCell<_>>` gives each callback shared ownership of the
+    // Take note: `Rc<RefCell<_>>` gives each Slint callback shared ownership of the
     // controller state and child-window handles without requiring `'static` borrows
     // from the stack frame of `run_desktop_learning_app`.
     let shared_state = Rc::new(RefCell::new(SharedLearningState::default()));
@@ -232,6 +241,8 @@ fn show_details_window(
     ensure_details_window(app_window, shared_state, runtime_windows)?;
 
     if let Some(details) = runtime_windows.borrow().details.as_ref() {
+        // Rust/Slint data conversion note: generated setters take `SharedString`, so `.into()`
+        // turns owned Rust `String` data from the controller into Slint-friendly values.
         details.set_selected_text(payload.selected_text.into());
         details.set_helper_text(payload.helper_text.into());
         details.show()?;
@@ -422,6 +433,9 @@ fn apply_state_to_ui(app_window: &AppWindow, state: &SharedLearningState) {
     let cross_page = state.cross_page_view_model();
     let window_demo = state.window_management_view_model();
 
+    // Take note: this function is the Rust-to-Slint publish step. The controller computes small,
+    // display-ready view models and then copies those values into generated component properties.
+    // Next experiment: comment out one setter, run the app, and observe which label stops updating.
     app_window.set_current_page(current_page.as_index());
     app_window.set_page_title(page_title(current_page).into());
     app_window.set_page_description(page_description(current_page).into());

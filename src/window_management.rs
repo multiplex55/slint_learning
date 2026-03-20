@@ -1,6 +1,10 @@
-//! Rust-side controller for the window-management lesson.
-//! The controller is intentionally UI-toolkit agnostic so the state transitions
-//! can be unit tested without launching real desktop windows.
+//! Rust-side controller for the multi-window lesson.
+//! Module responsibility: model the state transitions for reusable, hideable, and recreated child
+//! windows without depending on a live Slint backend.
+//! UI connection: `src/app.rs` asks this controller for payloads/view models and updates it when
+//! the page or child windows emit callbacks.
+//! Study here: ownership patterns for top-level windows, parent/child event flow, and how to keep
+//! window lifecycle logic unit-testable before involving real desktop handles.
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum WindowKind {
@@ -177,6 +181,8 @@ impl WindowManagementController {
     }
 
     pub fn prepare_payload(&self, kind: WindowKind) -> ChildWindowPayload {
+        // Take note: this is the Rust-to-Slint boundary for child windows. The controller snapshots
+        // the current draft text into a payload so a newly shown window can receive plain strings.
         let (title, helper_text) = match kind {
             WindowKind::Details => (
                 "Details Window",
@@ -280,6 +286,20 @@ mod tests {
         assert_eq!(payload.title, "Inspector Window");
         assert_eq!(payload.selected_text, "Selected item: Modal vs modeless");
         assert!(payload.helper_text.contains("hideable"));
+    }
+
+    #[test]
+    fn child_feedback_labels_the_replying_window_kind() {
+        let mut controller = WindowManagementController::default();
+        controller.record_child_feedback(
+            WindowKind::About,
+            "  learner closed the comparison window  ",
+        );
+
+        assert_eq!(
+            controller.view_model().child_feedback,
+            "About window replied: learner closed the comparison window"
+        );
     }
 
     #[test]

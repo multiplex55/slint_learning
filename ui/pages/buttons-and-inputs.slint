@@ -1,5 +1,10 @@
 import { Button, CheckBox, ComboBox, LineEdit, ScrollView, Slider, SpinBox, Switch } from "std-widgets.slint";
 
+// Widget lesson: this page groups common controls by interaction style so learners can compare
+// immediate actions, toggled state, text entry, and constrained numeric input.
+// Watch for: which widgets are self-contained examples and which ones would need callbacks if Rust
+// had to validate/persist their values.
+// Try changing this: turn the slider/progress card into a live binding exercise.
 export component ButtonsAndInputsPage inherits Rectangle {
     background: #ffffff;
     border-radius: 16px;
@@ -62,12 +67,14 @@ export component ButtonsAndInputsPage inherits Rectangle {
                     spacing: 12px;
                     Text { text: "Slider and progress idea"; font-size: 20px; font-weight: 800; color: #92400e; }
                     Text { text: "Sliders are useful when you want a continuous value. The fill bar below mirrors a static example value for discussion."; wrap: word-wrap; color: #b45309; }
-                    Slider { value: 42; minimum: 0; maximum: 100; }
+                    slider-demo := Slider { value: 42; minimum: 0; maximum: 100; }
                     Rectangle {
                         height: 18px;
                         background: #fde68a;
                         border-radius: 999px;
                         Rectangle {
+                            // Try changing this: replace `0.42` with `slider-demo.value / 100` to
+                            // turn this into a real property binding demo.
                             width: parent.width * 0.42;
                             height: parent.height;
                             background: #f59e0b;

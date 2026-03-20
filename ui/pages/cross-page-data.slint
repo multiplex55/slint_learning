@@ -1,5 +1,10 @@
 import { Button, LineEdit, ScrollView } from "std-widgets.slint";
 
+// Shared-state lesson: this page demonstrates one-way and two-way synchronization between Slint
+// widgets and Rust-owned state.
+// Watch for: bindings from Rust properties into widgets, plus callbacks that send edits back to
+// `src/app.rs` for validation and republishing.
+// Try changing this: add another shared field and wire it through the same callback/property loop.
 export component CrossPageDataPage inherits Rectangle {
     in property <string> learner-name;
     in property <string> cohort-name;
@@ -50,7 +55,8 @@ export component CrossPageDataPage inherits Rectangle {
                         Text { text: "Edit here → source page"; font-size: 22px; font-weight: 800; color: #1d4ed8; }
                         Text { text: editor-hint; wrap: word-wrap; color: #1e40af; }
                         Text { text: "Shared note (one-way flow into dashboard labels)"; font-weight: 700; color: #1e3a8a; }
-                        // The LineEdit mirrors the Rust-owned property so the UI always reflects validated/reset values.
+                        // Take note: this binding makes the LineEdit reflect whatever Rust most
+                        // recently approved, including resets or trimmed text.
                         note-entry := LineEdit {
                             text: shared-note-text;
                             accepted => { root.update-note(note-entry.text); }
@@ -98,6 +104,8 @@ export component CrossPageDataPage inherits Rectangle {
                             background: #dcfce7;
                             border-radius: 999px;
                             Rectangle {
+                                // Take note: this width is a real property binding. When Rust
+                                // republishes a new progress value, the fill bar recomputes itself.
                                 width: parent.width * shared-progress-value / 100;
                                 height: parent.height;
                                 background: #22c55e;

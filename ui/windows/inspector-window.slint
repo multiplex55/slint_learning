@@ -1,5 +1,9 @@
 import { Button } from "std-widgets.slint";
 
+// Child-window lesson: this window demonstrates the hide/show reuse pattern.
+// Watch for: the callback that asks the parent to hide the window rather than destroy it.
+// Try changing this: add another label and confirm it stays around when the window is hidden and
+// shown again.
 export component InspectorWindow inherits Window {
     in property <string> selected-text;
     in property <string> helper-text;
