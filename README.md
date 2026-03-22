@@ -52,6 +52,45 @@ If you are exploring the project for the first time, this reading order highligh
 7. **`ui/pages/lists-and-models.slint`** and **`ui/pages/layouts.slint`** — use these as visual labs for repeated models, nested layouts, and spacing experiments.
 8. **`docs/learning-notes.md`** — read the short guide that summarizes what each page is meant to teach and what to tweak next.
 
+## Contributor checklist for future demo pages
+
+When you add or significantly revise a demo page, keep the learning shell consistent:
+
+- Add the page to the central navigation flow so learners can actually reach it.
+- Describe the page in project docs so the teaching purpose is discoverable outside the UI.
+- Include teaching comments or labels in the `.slint` page so readers understand why the example exists.
+- Keep Rust-owned state, formatting helpers, validation, and routing logic in unit-testable Rust modules, and add tests for that logic.
+- Make demo interactions visible and intentional: controls should clearly show what changes, and placeholder interactions should be labeled as such.
+
+## Adding a new demo page checklist
+
+Use this sequence for every new page so the repo stays easy to browse and maintain:
+
+1. Create a focused `ui/pages/<topic>.slint` file.
+2. Register page metadata in `src/navigation.rs` so title, description, notes, and category stay centralized.
+3. Connect the page to shell navigation in `ui/app-window.slint`.
+4. Add sample controls, mock data, or explanatory content that make the interaction worth opening.
+5. Add or update tests for Rust-side helpers, page registry metadata, and any navigation/discovery behavior touched by the change.
+
+### Naming guidance
+
+- Name `.slint` page files after the concept they teach, using lowercase kebab-case such as `cross-page-data.slint` or `performance-and-best-practices.slint`.
+- Keep matching Rust modules concise and topic-based, using snake_case like `navigation.rs`, `dashboard.rs`, or `window_management.rs`.
+- Prefer one teaching concept per page/module pair so filenames remain scannable in directory listings.
+- Avoid vague names like `page2`, `misc`, or `helpers`; favor names that tell a new contributor what they can learn there.
+
+### What belongs in Rust instead of UI markup
+
+Keep concerns in Rust when they benefit from tests, reuse, or stronger guarantees. That includes:
+
+- page registries, navigation metadata, and page-discovery rules,
+- validation, clamping, parsing, and formatting helpers,
+- shared state that spans multiple pages,
+- command routing or action identifiers that should stay typed,
+- and any transformation that would be difficult to verify if it lived only inside `.slint` bindings.
+
+Keep the `.slint` markup focused on layout, styling, local presentation state, and clearly labeled demonstrations of bindings/callbacks.
+
 ## Cross-page shared state lesson
 
 The `Cross-page Data` page is a dedicated teaching example for shared Rust-side state.
