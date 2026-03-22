@@ -210,7 +210,7 @@ mod tests {
     }
 
     #[test]
-    fn page_titles_and_descriptions_are_non_empty() {
+    fn registered_pages_include_required_descriptive_fields() {
         for meta in page_registry() {
             assert!(
                 !meta.title.trim().is_empty(),
@@ -227,6 +227,11 @@ mod tests {
                 "missing notes for {:?}",
                 meta.id
             );
+            assert!(
+                !meta.category.trim().is_empty(),
+                "missing category for {:?}",
+                meta.id
+            );
         }
     }
 
@@ -237,6 +242,30 @@ mod tests {
         assert_eq!(ordered_ids, PageId::ALL);
         assert_eq!(page_registry()[0].title, "Dashboard");
         assert_eq!(page_registry()[8].title, "Playground");
+    }
+
+    #[test]
+    fn central_page_registry_is_internally_consistent() {
+        for (expected_index, meta) in page_registry().iter().enumerate() {
+            assert_eq!(
+                meta.id.as_index(),
+                expected_index as i32,
+                "registry index mismatch for {:?}",
+                meta.id
+            );
+            assert_eq!(
+                PageId::from_index(expected_index as i32),
+                Some(meta.id),
+                "from_index mismatch for {:?}",
+                meta.id
+            );
+            assert_eq!(
+                *meta,
+                meta.id.meta(),
+                "registry metadata drifted from PageId::meta() for {:?}",
+                meta.id
+            );
+        }
     }
 
     #[test]
